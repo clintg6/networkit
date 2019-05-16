@@ -5,14 +5,14 @@
  *      Author: Elisabetta Bergamini
  */
 
-#include "DynBetweennessOneNode.h"
-#include "../auxiliary/Log.h"
-#include "../auxiliary/PrioQueue.h"
-#include "../auxiliary/PrioQueueForInts.h"
-#include "../auxiliary/NumericTools.h"
+#include <algorithm>
 #include <queue>
-#include<unordered_set>
-#include<algorithm>
+#include <unordered_set>
+
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/NumericTools.hpp"
+#include "../../include/networkit/auxiliary/PrioQueue.hpp"
+#include "../../include/networkit/centrality/DynBetweennessOneNode.hpp"
 
 namespace NetworKit {
 

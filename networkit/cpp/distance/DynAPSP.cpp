@@ -5,20 +5,20 @@
  *      Author: Arie Slobbe, Elisabetta Bergamini
  */
 
-#include "APSP.h"
-#include "SSSP.h"
-#include "DynAPSP.h"
-#include "Dijkstra.h"
-#include "BFS.h"
-#include "../auxiliary/Log.h"
-#include "../auxiliary/PrioQueue.h"
-#include "../auxiliary/PrioQueueForInts.h"
-#include "../auxiliary/NumericTools.h"
-#include <queue>
-#include <memory>
-#include <unordered_set>
 #include <algorithm>
 #include <ctime>
+#include <memory>
+#include <queue>
+#include <unordered_set>
+
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/NumericTools.hpp"
+#include "../../include/networkit/auxiliary/PrioQueue.hpp"
+#include "../../include/networkit/distance/APSP.hpp"
+#include "../../include/networkit/distance/BFS.hpp"
+#include "../../include/networkit/distance/Dijkstra.hpp"
+#include "../../include/networkit/distance/DynAPSP.hpp"
+#include "../../include/networkit/distance/SSSP.hpp"
 
 namespace NetworKit {
 
@@ -43,21 +43,21 @@ void DynAPSP::run() {
 }
 
 std::vector<node> DynAPSP::getPath(node u, node v) {
-	std::vector<node> path = {};
-	if (distances[u][v] != infDist) {
-		node current = v;
-		while (current != u) {
-			path.push_back(current);
-			G.forInEdgesOf(current, [&](node z, edgeweight w){
-				if (distances[u][current] == distances[u][z] + w) {
-					current = z;
-				}
-			});
-		}
-		path.push_back(u);
-		std::reverse(path.begin(), path.end());
-	}
-	return path;
+    std::vector<node> path = {};
+    if (distances[u][v] < std::numeric_limits<edgeweight>::max()) {
+        node current = v;
+        while (current != u) {
+            path.push_back(current);
+            G.forInEdgesOf(current, [&](node z, edgeweight w) {
+                if (distances[u][current] == distances[u][z] + w) {
+                    current = z;
+                }
+            });
+        }
+        path.push_back(u);
+        std::reverse(path.begin(), path.end());
+    }
+    return path;
 }
 
 

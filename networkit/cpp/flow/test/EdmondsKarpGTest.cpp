@@ -5,9 +5,14 @@
  *      Author: Michael Wegner (michael.wegner@student.kit.edu)
  */
 
-#include "EdmondsKarpGTest.h"
+#include <gtest/gtest.h>
+
+#include "../../../include/networkit/flow/EdmondsKarp.hpp"
+#include "../../../include/networkit/graph/Graph.hpp"
 
 namespace NetworKit {
+
+class EdmondsKarpGTest : public testing::Test{};
 
 TEST_F(EdmondsKarpGTest, testEdmondsKarpP1) {
 	Graph G(7, false);

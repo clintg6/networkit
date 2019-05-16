@@ -5,11 +5,11 @@
  *      Author: Michael Hamann
  */
 
-#include "EdgeScoreLinearizer.h"
+#include "../../include/networkit/edgescores/EdgeScoreLinearizer.hpp"
 #include <numeric>
 #include <tuple>
-#include "../auxiliary/Random.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/auxiliary/Random.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
@@ -44,7 +44,7 @@ void EdgeScoreLinearizer::run() {
 		}
 
 		#pragma omp parallel for
-		for (index pos = 0; pos < G.upperEdgeIdBound(); ++pos) {
+		for (omp_index pos = 0; pos < static_cast<omp_index>(G.upperEdgeIdBound()); ++pos) {
 			edgeid eid = std::get<2>(sorted[pos]);
 			if (eid != none) {
 				scoreData[eid] = pos * 1.0 / (G.numberOfEdges()-1); // TODO maybe writing back to sorted and then sorting again by eid could be faster (cache efficiency)?

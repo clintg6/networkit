@@ -5,13 +5,13 @@
  *      Author: cls
  */
 
-#include "PLM.h"
+#include "../../include/networkit/community/PLM.hpp"
 #include <omp.h>
-#include "../coarsening/ParallelPartitionCoarsening.h"
-#include "../coarsening/ClusteringProjector.h"
-#include "../auxiliary/Log.h"
-#include "../auxiliary/Timer.h"
-#include "../auxiliary/SignalHandling.h"
+#include "../../include/networkit/coarsening/ParallelPartitionCoarsening.hpp"
+#include "../../include/networkit/coarsening/ClusteringProjector.hpp"
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/Timer.hpp"
+#include "../../include/networkit/auxiliary/SignalHandling.hpp"
 
 
 #include <sstream>
@@ -193,9 +193,9 @@ void PLM::run() {
 			double volN = 0.0;
 			volN = volNode[u];
 			// update the volume of the two clusters
-			#pragma omp atomic update
+			#pragma omp atomic
 			volCommunity[C] -= volN;
-			#pragma omp atomic update
+			#pragma omp atomic
 			volCommunity[best] += volN;
 
 			moved = true; // change to clustering has been made
@@ -281,7 +281,7 @@ void PLM::run() {
 			zeta.parallelForEntries([&](node u, index C) { 	// set volume for all communities
 				if (C != none) {
 					edgeweight volN = volNode[u];
-					#pragma omp atomic update
+					#pragma omp atomic
 					volCommunity[C] += volN;
 				}
 			});
@@ -299,7 +299,7 @@ void PLM::run() {
 	hasRun = true;
 }
 
-std::string NetworKit::PLM::toString() const {
+std::string PLM::toString() const {
 	std::stringstream stream;
 	stream << "PLM(";
 	stream << parallelism;

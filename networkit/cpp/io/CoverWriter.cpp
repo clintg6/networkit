@@ -1,9 +1,9 @@
-#include "CoverWriter.h"
+#include "../../include/networkit/io/CoverWriter.hpp"
 #include <fstream>
 
 namespace NetworKit {
 
-void NetworKit::CoverWriter::write(Cover& zeta, const std::string& path) const {
+void CoverWriter::write(Cover& zeta, const std::string& path) const {
 	std::ofstream file{path};
 
 	std::vector<std::vector<index> > sets(zeta.upperBound());

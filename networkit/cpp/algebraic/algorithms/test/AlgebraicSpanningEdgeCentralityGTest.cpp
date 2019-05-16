@@ -5,15 +5,19 @@
  *      Author: Michael Wegner (michael.wegner@student.kit.edu)
  */
 
-#include "AlgebraicSpanningEdgeCentralityGTest.h"
 
-#include "../AlgebraicSpanningEdgeCentrality.h"
-#include "../../CSRMatrix.h"
+#include <gtest/gtest.h>
 
-#include "../../../io/METISGraphReader.h"
-#include "../../../centrality/SpanningEdgeCentrality.h"
+#include "../../../../include/networkit/algebraic/algorithms/AlgebraicSpanningEdgeCentrality.hpp"
+#include "../../../../include/networkit/algebraic/CSRMatrix.hpp"
+
+#include "../../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../../include/networkit/centrality/SpanningEdgeCentrality.hpp"
 
 namespace NetworKit {
+
+class AlgebraicSpanningEdgeCentralityGTest : testing::Test {};
+
 
 TEST(AlgebraicSpanningEdgeCentralityGTest, testOnToyGraph) {
 	/* Graph:

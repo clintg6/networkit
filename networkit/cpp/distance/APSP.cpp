@@ -5,10 +5,10 @@
  *      Author: Arie Slobbe
  */
 
-#include "APSP.h"
-#include "../auxiliary/Log.h"
-#include "Dijkstra.h"
-#include "BFS.h"
+#include "../../include/networkit/distance/APSP.hpp"
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/distance/Dijkstra.hpp"
+#include "../../include/networkit/distance/BFS.hpp"
 
 namespace NetworKit {
 
@@ -33,7 +33,7 @@ void APSP::run() {
 	hasRun = true;
 }
 
-std::string NetworKit::APSP::toString() const {
+std::string APSP::toString() const {
 	return "All-Pairs Shortest Path Algorithm";
 }
 

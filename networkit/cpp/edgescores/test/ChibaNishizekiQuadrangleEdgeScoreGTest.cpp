@@ -5,13 +5,13 @@
  *      Author: Gerd Lindner
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
-#include "ChibaNishizekiQuadrangleEdgeScoreGTest.h"
-
-#include "../ChibaNishizekiQuadrangleEdgeScore.h"
+#include "../../../include/networkit/edgescores/ChibaNishizekiQuadrangleEdgeScore.hpp"
 
 namespace NetworKit {
+
+class ChibaNishizekiQuadrangleEdgeScoreGTest: public testing::Test {};
 
 TEST_F(ChibaNishizekiQuadrangleEdgeScoreGTest, testQuadrangleCountsTrivial) {
 	Graph g(5);
@@ -79,5 +79,3 @@ TEST_F(ChibaNishizekiQuadrangleEdgeScoreGTest, testQuadrangleCountsSimple) {
 
 }
 /* namespace NetworKit */
-
-#endif /*NOGTEST */

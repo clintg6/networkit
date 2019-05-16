@@ -5,7 +5,7 @@
  *      Author: cls
  */
 
-#include "Cover.h"
+#include "../../include/networkit/structures/Cover.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -17,7 +17,7 @@ Cover::Cover() : z(0), omega(0), data(0) {}
 Cover::Cover(index z) : z(z-1), omega(0), data(z) {
 }
 
-Cover::Cover(const NetworKit::Partition &p) : z(p.numberOfElements()-1), omega(p.upperBound()-1), data(p.numberOfElements()) {
+Cover::Cover(const Partition &p) : z(p.numberOfElements()-1), omega(p.upperBound()-1), data(p.numberOfElements()) {
 	p.forEntries([&](index e, index s) {
 		if (s != none)
 			data[e].insert(s);
@@ -160,7 +160,7 @@ count Cover::numberOfSubsets() const {
 
 	count k = 0; // number of actually existing clusters
 	#pragma omp parallel for reduction(+:k)
-	for (index i = 0; i < upperBound(); ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(upperBound()); ++i) {
 		if (exists[i]) {
 			k++;
 		}
@@ -171,6 +171,13 @@ count Cover::numberOfSubsets() const {
 
 count Cover::numberOfElements() const {
 	return z+1;
+}
+
+index Cover::extend() {
+	data.emplace_back();
+	++z;
+	assert(z + 1 == data.size());
+	return z;
 }
 
 void Cover::setUpperBound(index upper) {

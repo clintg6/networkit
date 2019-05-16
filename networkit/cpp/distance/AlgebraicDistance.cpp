@@ -6,9 +6,9 @@
  */
 
 
-#include "AlgebraicDistance.h"
+#include "../../include/networkit/distance/AlgebraicDistance.hpp"
 
-#include "../auxiliary/Timer.h"
+#include "../../include/networkit/auxiliary/Timer.hpp"
 #include <omp.h>
 
 
@@ -26,7 +26,7 @@ void AlgebraicDistance::randomInit() {
 	loads.resize(numSystems*G.upperNodeIdBound());
 
 	#pragma omp parallel for
-	for (index i = 0; i < loads.size(); ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(loads.size()); ++i) {
 		loads[i] = Aux::Random::real();
 	}
 }

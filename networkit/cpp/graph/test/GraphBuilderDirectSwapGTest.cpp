@@ -5,15 +5,41 @@
  *      Author: Marvin Ritter (marvin.ritter@gmail.com)
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
 #include <algorithm>
+#include <tuple>
 
-#include "GraphBuilderDirectSwapGTest.h"
-#include "../../auxiliary/Random.h"
-#include "../../auxiliary/Parallel.h"
+#include "../../../include/networkit/auxiliary/Random.hpp"
+#include "../../../include/networkit/auxiliary/Parallel.hpp"
+
+#include "../../../include/networkit/graph/Graph.hpp"
+#include "../../../include/networkit/graph/GraphBuilder.hpp"
 
 namespace NetworKit {
+
+class GraphBuilderDirectSwapGTest: public testing::TestWithParam< std::tuple<bool, bool> > {
+public:
+	virtual void SetUp();
+
+protected:
+	GraphBuilder bHouse;
+	std::vector< std::pair<node, node> > houseEdgesOut;
+	std::vector< std::vector<edgeweight> > Ahouse;
+	count n_house;
+	count m_house;
+
+	bool isGraph() const { return !isWeighted() && !isDirected(); }
+	bool isWeightedGraph() const { return isWeighted() && !isDirected(); }
+	bool isDirectedGraph() const { return !isWeighted() && isDirected(); }
+	bool isWeightedDirectedGraph() const { return isWeighted() && isDirected(); }
+
+	bool isWeighted() const;
+	bool isDirected() const;
+
+	GraphBuilder createGraphBuilder(count n = 0) const;
+	Graph toGraph(GraphBuilder& b) const;
+};
 
 INSTANTIATE_TEST_CASE_P(InstantiationName, GraphBuilderDirectSwapGTest, testing::Values(
 	std::make_tuple(false, false),
@@ -461,7 +487,7 @@ TEST_P(GraphBuilderDirectSwapGTest, testForValidStateAfterToGraph) {
 	node u = this->bHouse.addNode();
 	this->bHouse.addHalfOutEdge(v, u, 0.25);
 	if (isDirected()) {
-		this->bHouse.addHalfInEdge(v, u, 0.25);
+		this->bHouse.addHalfInEdge(u, v, 0.25);
 	} else {
 		this->bHouse.addHalfOutEdge(u, v, 0.25);
 	}
@@ -562,5 +588,3 @@ TEST_P(GraphBuilderDirectSwapGTest, testParallelForNodePairs) {
 }
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

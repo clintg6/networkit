@@ -5,15 +5,18 @@
  *      Author: Michael
  */
 
-#include "OctreeGTest.h"
-#include "../../algebraic/Vector.h"
-#include "../Octree.h"
-#include "../../auxiliary/Log.h"
-#include "../../auxiliary/Random.h"
+#include <gtest/gtest.h>
+
+#include "../../../include/networkit/algebraic/Vector.hpp"
+#include "../../../include/networkit/viz/Octree.hpp"
+#include "../../../include/networkit/auxiliary/Log.hpp"
+#include "../../../include/networkit/auxiliary/Random.hpp"
 
 #include <vector>
 
 namespace NetworKit {
+
+class OctreeGTest : public testing::Test {};
 
 TEST(OctreeGTest, testOctreeWithExample) {
 	std::vector<Vector> coordinates(2, Vector(11, 0.0));
@@ -52,7 +55,7 @@ TEST(OctreeGTest, testOctreeWithExample) {
 
 
 	Octree<double> ocTree(coordinates);
-	INFO(ocTree.toString());
+	DEBUG(ocTree.toString());
 	std::vector<std::pair<count, Point<double>>> fiveApprox = ocTree.approximateDistance(Point<double>(2.0, 22.0), 0.5);
 //	for (auto &point : fiveApprox) {
 //		INFO(point.first, ": ", point.second.toString());
@@ -76,9 +79,5 @@ TEST(OctreeGTest, testOctreeWithExample) {
 
 	std::vector<std::pair<count, Point<double>>> exactApprox = ocTree.approximateDistance(Point<double>(2.0, 22.0), 0.0);
 	EXPECT_EQ(exactApprox.size(), 10u);
-
-
-
 }
-
 } /* namespace NetworKit */

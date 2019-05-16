@@ -5,16 +5,19 @@
  *      Author: Michael Wegner (michael.wegner@student.kit.edu)
  */
 
-#include "AlgebraicMatchingCoarseningGTest.h"
+#include <gtest/gtest.h>
 
-#include "../../../auxiliary/Timer.h"
-#include "../AlgebraicMatchingCoarsening.h"
-#include "../../CSRMatrix.h"
-#include "../../../io/METISGraphReader.h"
-#include "../../../matching/LocalMaxMatcher.h"
-#include "../../../coarsening/MatchingCoarsening.h"
+#include "../../../../include/networkit/auxiliary/Timer.hpp"
+#include "../../../../include/networkit/algebraic/algorithms/AlgebraicMatchingCoarsening.hpp"
+#include "../../../../include/networkit/algebraic/CSRMatrix.hpp"
+#include "../../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../../include/networkit/matching/LocalMaxMatcher.hpp"
+#include "../../../../include/networkit/coarsening/MatchingCoarsening.hpp"
 
 namespace NetworKit {
+
+class AlgebraicMatchingCoarseningGTest : public testing::Test {};
+
 
 TEST(AlgebraicMatchingCoarseningGTest, testContraction) {
 	METISGraphReader reader;

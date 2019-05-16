@@ -2,20 +2,31 @@
  * BellmanFordGTest.cpp
  *
  *  Created on: Jun 6, 2016
- *      Author: Michael
+ *      Author: Michael Wegner (michael.wegner@student.kit.edu)
  */
 
-#include "../../../io/METISGraphReader.h"
-#include "../../../auxiliary/Timer.h"
+#include <gtest/gtest.h>
 
-#include "../../CSRMatrix.h"
+#include "../../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../../include/networkit/auxiliary/Timer.hpp"
+#include "../../../../include/networkit/graph/Graph.hpp"
 
-#include "../../../distance/Dijkstra.h"
-#include "../../DynamicMatrix.h"
-#include "../AlgebraicBellmanFord.h"
-#include "AlgebraicBellmanFordGTest.h"
+#include "../../../../include/networkit/algebraic/CSRMatrix.hpp"
+
+#include "../../../../include/networkit/distance/Dijkstra.hpp"
+#include "../../../../include/networkit/algebraic/DynamicMatrix.hpp"
+#include "../../../../include/networkit/algebraic/algorithms/AlgebraicBellmanFord.hpp"
 
 namespace NetworKit {
+
+class AlgebraicBellmanFordGTest : public testing::Test {
+public:
+	AlgebraicBellmanFordGTest() = default;
+	virtual ~AlgebraicBellmanFordGTest() = default;
+
+protected:
+	std::vector<double> classicBF(const Graph& graph, node s) const;
+};
 
 TEST_F(AlgebraicBellmanFordGTest, testOnToyGraph) {
 	Graph G(5, true, true);

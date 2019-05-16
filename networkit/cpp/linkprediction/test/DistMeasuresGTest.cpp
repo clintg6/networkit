@@ -5,20 +5,22 @@
  *      Author: Henning
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
+#include <cstdio>
 
-#include "DistMeasuresGTest.h"
-#include "../../auxiliary/Log.h"
+#include "../../../include/networkit/graph/Graph.hpp"
+#include "../../../include/networkit/viz/PostscriptWriter.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/io/DibapGraphReader.hpp"
+#include "../../../include/networkit/structures/Partition.hpp"
+#include "../../../include/networkit/community/Modularity.hpp"
+#include "../../../include/networkit/linkprediction/AlgebraicDistanceIndex.hpp"
+
+#include "../../../include/networkit/auxiliary/Log.hpp"
 
 namespace NetworKit {
 
-DistMeasuresGTest::DistMeasuresGTest() {
-
-}
-
-DistMeasuresGTest::~DistMeasuresGTest() {
-
-}
+class DistMeasuresGTest: public testing::Test {};
 
 TEST_F(DistMeasuresGTest, testAlgebraicDistanceIndex) {
 	Graph G(42);
@@ -37,12 +39,9 @@ TEST_F(DistMeasuresGTest, testAlgebraicDistanceIndex) {
 		adSum += ad.run(u, v);
 	});
 
-	INFO("sum of algebraic distances: " , adSum);
+	DEBUG("sum of algebraic distances: " , adSum);
 	EXPECT_GE(1e-12, adSum) << "algebraic distances should converge towards zero";
-
 }
-
 
 } /* namespace NetworKit */
 
-#endif /*NOGTEST */

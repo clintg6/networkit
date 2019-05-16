@@ -2,15 +2,17 @@
  *
  */
 
-#include "LFRGenerator.h"
-#include "PowerlawDegreeSequence.h"
-#include "EdgeSwitchingMarkovChainGenerator.h"
-#include "PubWebGenerator.h"
-#include "../auxiliary/Random.h"
 #include <algorithm>
 #include <random>
-#include "../auxiliary/SignalHandling.h"
-#include "../auxiliary/Parallel.h"
+#include <numeric>
+
+#include "../../include/networkit/generators/LFRGenerator.hpp"
+#include "../../include/networkit/generators/PowerlawDegreeSequence.hpp"
+#include "../../include/networkit/generators/EdgeSwitchingMarkovChainGenerator.hpp"
+#include "../../include/networkit/generators/PubWebGenerator.hpp"
+#include "../../include/networkit/auxiliary/Random.hpp"
+#include "../../include/networkit/auxiliary/SignalHandling.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 NetworKit::LFRGenerator::LFRGenerator(NetworKit::count n) :
 n(n), hasDegreeSequence(false), hasCommunitySizeSequence(false), hasInternalDegreeSequence(false), hasGraph(false), hasPartition(false) { }
@@ -70,7 +72,7 @@ void NetworKit::LFRGenerator::setMu(double mu) {
 	internalDegreeSequence.resize(n);
 
 	#pragma omp parallel for
-	for (node u = 0; u < n; ++u) {
+	for (omp_index u = 0; u < static_cast<omp_index>(n); ++u) {
 		if (degreeSequence[u] == 0) continue;
 
 		double intDeg = (1.0 - mu) * degreeSequence[u];
@@ -93,7 +95,7 @@ void NetworKit::LFRGenerator::setMu(const std::vector< double > &mu) {
 	internalDegreeSequence.resize(n);
 
 	#pragma omp parallel for
-	for (node u = 0; u < n; ++u) {
+	for (omp_index u = 0; u < static_cast<omp_index>(n); ++u) {
 		if (degreeSequence[u] == 0) continue;
 
 		double intDeg = (1.0 - mu[u]) * degreeSequence[u];
@@ -433,7 +435,7 @@ void NetworKit::LFRGenerator::run() {
 		zeta.setUpperBound(communityNodeList.size());
 
 		#pragma omp parallel for
-		for (index i = 0; i < communityNodeList.size(); ++i) {
+		for (omp_index i = 0; i < static_cast<omp_index>(communityNodeList.size()); ++i) {
 			for (node u : communityNodeList[i]) {
 				zeta[u] = i;
 			}
@@ -447,7 +449,7 @@ void NetworKit::LFRGenerator::run() {
 
 	// generate intra-cluster edges
 	#pragma omp parallel for // note: parallelization only works because the communities are non-overlapping
-	for (index i = 0; i < communityNodeList.size(); ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(communityNodeList.size()); ++i) {
 		const auto &communityNodes = communityNodeList[i];
 		if (communityNodes.empty()) continue;
 

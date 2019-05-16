@@ -5,15 +5,15 @@
 // *      Author: Michael
 // */
 //
-//#include "SolverLamg.h"
-//#include "LAMGSettings.h"
+#include "../../../include/networkit/numerics/LAMG/SolverLamg.hpp"
+#include "../../../include/networkit/numerics/LAMG/LAMGSettings.hpp"
 //
 //#include <fstream>
 //#include <iostream>
 //#include <sstream>
 //
-//#include "../../auxiliary/Enforce.h"
-//#include "../../auxiliary/Timer.h"
+#include "../../../include/networkit/auxiliary/Enforce.hpp"
+#include "../../../include/networkit/auxiliary/Timer.hpp"
 //
 //namespace NetworKit {
 //
@@ -284,7 +284,7 @@
 //		std::vector<index> ERowIdx(r.getDimension()+1);
 //
 //#pragma omp parallel for
-//		for (index i = 0; i < r.getDimension(); ++i) {
+//		for (omp_index i = 0; i < static_cast<omp_index>(r.getDimension()); ++i) {
 //			for (index k = 0; k < n; ++k) {
 //				double AEvalue = r[i] - rHistory[level][k][i];
 //				if (std::abs(AEvalue) > 1e-9) {
@@ -310,7 +310,7 @@
 //		std::vector<double> ENonZeros(ERowIdx[r.getDimension()]);
 //
 //#pragma omp parallel for
-//		for (index i = 0; i < r.getDimension(); ++i) {
+//		for (omp_index i = 0; i < static_cast<omp_index>(r.getDimension()); ++i) {
 //			for (index k = 0, aIdx = ARowIdx[i], eIdx = ERowIdx[i]; k < n; ++k) {
 //				double AEvalue = r[i] - rHistory[level][k][i];
 //				if (std::abs(AEvalue) > 1e-9) {

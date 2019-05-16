@@ -5,15 +5,17 @@
  *      Author: moritzl
  */
 
-#include "ApproxBetweennessGTest.h"
-#include "../ApproxBetweenness.h"
-#include "../Betweenness.h"
-#include "../../generators/ErdosRenyiGenerator.h"
-#include "../../generators/DorogovtsevMendesGenerator.h"
-#include "../../distance/Diameter.h"
+#include <gtest/gtest.h>
+
+#include "../../../include/networkit/centrality/ApproxBetweenness.hpp"
+#include "../../../include/networkit/centrality/Betweenness.hpp"
+#include "../../../include/networkit/generators/ErdosRenyiGenerator.hpp"
+#include "../../../include/networkit/generators/DorogovtsevMendesGenerator.hpp"
+#include "../../../include/networkit/distance/Diameter.hpp"
 
 namespace NetworKit {
 
+class ApproxBetweennessGTest : public testing::Test {};
 
 TEST_F(ApproxBetweennessGTest, benchApproxDiameterErdos) {
 	ErdosRenyiGenerator gen(1000,0.002);

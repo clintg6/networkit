@@ -231,7 +231,8 @@ class Profile:
 		""" creates a profile object
 
 		Args:
-			G: graph to profile
+			G: networkit.Graph
+				Graph to profile
 			preset: name of preset configuration: "complete", "minimal", "default"
 			config: object to control some aspects of the generation behaviour (Config)
 		Returns:
@@ -279,7 +280,7 @@ class Profile:
 			("Centrality.Betweenness", 				"Node Centrality",	"Betweenness",
 				True,	funcScores,	"Score",				centrality.ApproxBetweenness2,			(G, 10, True)),
 			("Centrality.Closeness",				"Node Centrality",	"Closeness",
-				True,	funcScores,	"Score",				centrality.ApproxCloseness,				(G, 10, True)),
+				True,	funcScores,	"Score",				centrality.ApproxCloseness,				(G, min(10, G.numberOfNodes()), True)),
 			("Partition.Communities", 				"Partition",		"Communities",
 				False,	funcSizes,	"Nodes per Community",	community.PLM,			 				(G, )),
 			("Partition.ConnectedComponents", 		"Partition",		"Connected Components",
@@ -754,7 +755,7 @@ class Profile:
 			try:
 				timerInstance = stopwatch.Timer()
 				self.verbosePrint("EffectiveDiameter: ", end="")
-				diam = distance.ApproxEffectiveDiameter(self.__G)
+				diam = distance.EffectiveDiameterApproximation(self.__G)
 				diameter = diam.run().getEffectiveDiameter()
 				elapsedMain = timerInstance.elapsed
 				self.verbosePrint("{:.2F} s".format(elapsedMain))
@@ -789,14 +790,15 @@ class Profile:
 		""" calculate the network measures and stats """
 		pool = multiprocessing_helper.ThreadPool(self.__parallel, False)
 
-		for name in self.__measures:
-			measure = self.__measures[name]
+		failed_measures = list()
+
+		for name, measure in self.__measures.items():
 			self.verbosePrint(name + ": ", end="")
 			try:
 				instance = measure["class"](*measure["parameters"])
 			except Exception as e:
-				del self.__measures[name]
 				self.verbosePrint("(removed)\n>> " + str(e))
+				failed_measures.append(name)
 				continue
 
 			# run algorithm and get result
@@ -852,6 +854,9 @@ class Profile:
 			)
 
 		self.verbosePrint("")
+
+		for name in failed_measures:
+			del self.__measures[name]
 
 		for name in self.__measures:
 			# the fix below avoids a cake-diagram for connected graphs,

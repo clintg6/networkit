@@ -5,9 +5,9 @@
  *      Author: Henning
  */
 
-#include "RasterReader.h"
-#include "../auxiliary/NumberParsing.h"
-#include "../auxiliary/Random.h"
+#include "../../include/networkit/io/RasterReader.hpp"
+#include "../../include/networkit/auxiliary/NumberParsing.hpp"
+#include "../../include/networkit/auxiliary/Random.hpp"
 #include <cassert>
 #include <iostream>
 #include <fstream>
@@ -18,7 +18,7 @@ RasterReader::RasterReader(double normalizationFactor): normalizationFactor(norm
 }
 
 std::pair<std::vector<double>, std::vector<double> >
-NetworKit::RasterReader::read(const std::string& path)
+RasterReader::read(const std::string& path)
 {
 	DEBUG("start reading raster file...");
 
@@ -105,4 +105,3 @@ NetworKit::RasterReader::read(const std::string& path)
 }
 
 } /* namespace NetworKit */
-

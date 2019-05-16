@@ -5,56 +5,77 @@ Dy * GeneratorsTest.cpp
  *      Author: cls
  */
 
-#ifndef NOGTEST
-
-
-#include "GeneratorsGTest.h"
+#include <gtest/gtest.h>
 
 #include <numeric>
 #include <cmath>
 
-#include "../DynamicGraphSource.h"
-#include "../DynamicBarabasiAlbertGenerator.h"
-#include "../PubWebGenerator.h"
-#include "../DynamicPubWebGenerator.h"
-#include "../ErdosRenyiGenerator.h"
-#include "../ChungLuGenerator.h"
-#include "../HavelHakimiGenerator.h"
-#include "../RmatGenerator.h"
-#include "../BarabasiAlbertGenerator.h"
-#include "../DynamicPathGenerator.h"
-#include "../DynamicForestFireGenerator.h"
-#include "../DynamicDorogovtsevMendesGenerator.h"
-#include "../DorogovtsevMendesGenerator.h"
-#include "../WattsStrogatzGenerator.h"
-#include "../RegularRingLatticeGenerator.h"
-#include "../StochasticBlockmodel.h"
-#include "../EdgeSwitchingMarkovChainGenerator.h"
-#include "../LFRGenerator.h"
+#include "../../../include/networkit/generators/ClusteredRandomGraphGenerator.hpp"
+#include "../../../include/networkit/generators/DynamicGraphSource.hpp"
+#include "../../../include/networkit/generators/DynamicBarabasiAlbertGenerator.hpp"
+#include "../../../include/networkit/generators/PubWebGenerator.hpp"
+#include "../../../include/networkit/generators/DynamicPubWebGenerator.hpp"
+#include "../../../include/networkit/generators/ErdosRenyiGenerator.hpp"
+#include "../../../include/networkit/generators/ChungLuGenerator.hpp"
+#include "../../../include/networkit/generators/HavelHakimiGenerator.hpp"
+#include "../../../include/networkit/generators/RmatGenerator.hpp"
+#include "../../../include/networkit/generators/BarabasiAlbertGenerator.hpp"
+#include "../../../include/networkit/generators/DynamicPathGenerator.hpp"
+#include "../../../include/networkit/generators/DynamicForestFireGenerator.hpp"
+#include "../../../include/networkit/generators/DynamicDorogovtsevMendesGenerator.hpp"
+#include "../../../include/networkit/generators/DorogovtsevMendesGenerator.hpp"
+#include "../../../include/networkit/generators/WattsStrogatzGenerator.hpp"
+#include "../../../include/networkit/generators/RegularRingLatticeGenerator.hpp"
+#include "../../../include/networkit/generators/StochasticBlockmodel.hpp"
+#include "../../../include/networkit/generators/EdgeSwitchingMarkovChainGenerator.hpp"
+#include "../../../include/networkit/generators/LFRGenerator.hpp"
+#include "../../../include/networkit/generators/MocnikGenerator.hpp"
+#include "../../../include/networkit/generators/MocnikGeneratorBasic.hpp"
+#include "../../../include/networkit/generators/HyperbolicGenerator.hpp"
+#include "../../../include/networkit/generators/DynamicHyperbolicGenerator.hpp"
 
-
-#include "../../viz/PostscriptWriter.h"
-#include "../../community/ClusteringGenerator.h"
-#include "../../community/PLP.h"
-#include "../../community/PLM.h"
-#include "../../io/METISGraphWriter.h"
-#include "../../io/DotGraphWriter.h"
-#include "../../io/GraphIO.h"
-#include "../../io/METISGraphReader.h"
-#include "../../community/Modularity.h"
-#include "../../dynamics/GraphUpdater.h"
-#include "../../auxiliary/MissingMath.h"
-#include "../../auxiliary/Parallel.h"
-#include "../../auxiliary/Random.h"
-#include "../../global/ClusteringCoefficient.h"
-#include "../../community/PLM.h"
-#include "../../community/Modularity.h"
+#include "../../../include/networkit/viz/PostscriptWriter.hpp"
+#include "../../../include/networkit/community/ClusteringGenerator.hpp"
+#include "../../../include/networkit/community/PLP.hpp"
+#include "../../../include/networkit/community/PLM.hpp"
+#include "../../../include/networkit/io/METISGraphWriter.hpp"
+#include "../../../include/networkit/io/DotGraphWriter.hpp"
+#include "../../../include/networkit/io/GraphIO.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/community/Modularity.hpp"
+#include "../../../include/networkit/dynamics/GraphUpdater.hpp"
+#include "../../../include/networkit/auxiliary/MissingMath.hpp"
+#include "../../../include/networkit/auxiliary/Parallel.hpp"
+#include "../../../include/networkit/auxiliary/Random.hpp"
+#include "../../../include/networkit/global/ClusteringCoefficient.hpp"
+#include "../../../include/networkit/community/PLM.hpp"
+#include "../../../include/networkit/community/Modularity.hpp"
 
 
 namespace NetworKit {
 
-GeneratorsGTest::GeneratorsGTest() {
+class GeneratorsGTest: public testing::Test {
+public:
+	vector<double> getAngles(DynamicHyperbolicGenerator dynGen) {
+		return dynGen.angles;
+	}
 
+	vector<double> getRadii(DynamicHyperbolicGenerator dynGen) {
+		return dynGen.radii;
+	}
+
+};
+
+TEST_F(GeneratorsGTest, testClusteredRandomGraphGenerator) {
+	Aux::Random::setSeed(42, false);
+	const count n = 100, c = 10;
+	const double pin = 0.5, pout = 0.01;
+	ClusteredRandomGraphGenerator gen(n, c, pin, pout);
+	Graph G = gen.generate();
+	Partition part = gen.getCommunities();
+	count nCommunities = part.getSubsetIds().size();
+	EXPECT_EQ(n, G.upperNodeIdBound());
+	EXPECT_TRUE(nCommunities >= 1 && nCommunities <= c);
 }
 
 TEST_F(GeneratorsGTest, testDynamicBarabasiAlbertGeneratorSingleStep) {
@@ -136,8 +157,8 @@ TEST_F(GeneratorsGTest, viewDynamicBarabasiAlbertGenerator) {
 TEST_F(GeneratorsGTest, testStaticPubWebGenerator) {
 	Aux::Random::setSeed(42, false);
 
-	count n = 1800;
-	count numCluster = 24;
+	count n = 450;
+	count numCluster = 9;
 	count maxNumNeighbors = 36;
 	float rad = 0.075;
 
@@ -176,11 +197,9 @@ TEST_F(GeneratorsGTest, testStaticPubWebGenerator) {
 
 
 TEST_F(GeneratorsGTest, testDynamicPubWebGenerator) {
-//	count nSteps = 100;
-//	count n = 1200;
-	count nSteps = 15;
-	count n = 300;
-	count numCluster = 30;
+	count nSteps = 5;
+	count n = 200;
+	count numCluster = 10;
 	count maxNumNeighbors = 40;
 	float rad = 0.08;
 
@@ -189,9 +208,11 @@ TEST_F(GeneratorsGTest, testDynamicPubWebGenerator) {
 	GraphUpdater gu(G);
 	std::vector<GraphEvent> stream;
 
-	// static clustering algorithm for better visual output
-	PostscriptWriter psWriter(true);
-	psWriter.write(G, "output/pubweb-0000.eps");
+	#if LOG_LEVEL == LOG_LEVEL_DEBUG
+		// static clustering algorithm for better visual output
+		PostscriptWriter psWriter(true);
+		psWriter.write(G, "output/pubweb-0000.eps");
+	#endif
 
 	for (index i = 1; i <= nSteps; ++i) {
 		stream = dynGen.generate(1);
@@ -212,12 +233,13 @@ TEST_F(GeneratorsGTest, testDynamicPubWebGenerator) {
 			Point<float> p = iter->second;
 			G.setCoordinate(v, p);
 		}
-
-		// output for visual inspection
-		char path[23];
-		sprintf(path, "output/pubweb-%04llu.eps", static_cast<unsigned long long>(i));
-		TRACE("path: " , path);
-		psWriter.write(G, path);
+		#if LOG_LEVEL == LOG_LEVEL_DEBUG
+			// output for visual inspection
+			char path[23];
+			sprintf(path, "output/pubweb-%04llu.eps", static_cast<unsigned long long>(i));
+			DEBUG("path: " , path);
+			psWriter.write(G, path);
+		#endif
 	}
 }
 
@@ -229,7 +251,7 @@ TEST_F(GeneratorsGTest, testDynamicHyperbolicGeneratorOnMovedNodes) {
 
 	//set up dynamic parameters
 	int nSteps = 20;
-	const count n = 1000;
+	const count n = 500;
 	const double k = 6;
 	const double alpha = 1;
 	//const double exp = 2*alpha+1;
@@ -263,7 +285,9 @@ TEST_F(GeneratorsGTest, testDynamicHyperbolicGeneratorOnMovedNodes) {
 				EXPECT_TRUE(G.hasEdge(event.u, event.v));
 			}
 			//only present nodes can be affected, no new nodes are introduced
-			if (event.type != GraphEvent::TIME_STEP) EXPECT_LT(event.u, G.upperNodeIdBound());
+			if (event.type != GraphEvent::TIME_STEP){
+				EXPECT_LT(event.u, G.upperNodeIdBound());
+			}
 		}
 		gu.update(stream);
 		EXPECT_TRUE(G.checkConsistency());
@@ -305,8 +329,10 @@ TEST_F(GeneratorsGTest, testDynamicHyperbolicVisualization) {
 	GraphUpdater gu(G);
 	std::vector<GraphEvent> stream;
 	G.initCoordinates();
-	PostscriptWriter psWriter(true);
-	psWriter.write(G, "output/hyperbolic-0000.eps");
+	#if LOG_LEVEL == LOG_LEVEL_DEBUG
+		PostscriptWriter psWriter(true);
+		psWriter.write(G, "output/hyperbolic-0000.eps");
+	#endif
 
 	for (index i = 0; i < nSteps; i++) {
 		stream = dynGen.generate(1);
@@ -321,12 +347,13 @@ TEST_F(GeneratorsGTest, testDynamicHyperbolicVisualization) {
 		for (index j = 0; j < coords.size(); j++) {
 			G.setCoordinate(j, coords[j]);
 		}
-
-		// output for visual inspection
-		char path[27];//TODO: come on, this is ridiculous!
-		sprintf(path, "output/hyperbolic-%04llu.eps", static_cast<unsigned long long>(i));
-		TRACE("path: " , path);
-		psWriter.write(G, path);
+		#if LOG_LEVEL == LOG_LEVEL_DEBUG
+			// output for visual inspection
+			char path[27];//TODO: come on, this is ridiculous!
+			sprintf(path, "output/hyperbolic-%04llu.eps", static_cast<unsigned long long>(i));
+			TRACE("path: " , path);
+			psWriter.write(G, path);
+		#endif
 	}
 }
 
@@ -424,13 +451,15 @@ TEST_F(GeneratorsGTest, generatetBarabasiAlbertGeneratorGraph) {
 }
 
 TEST_F(GeneratorsGTest, testDynamicPathGenerator) {
+	count nSteps = 42;
 	DynamicPathGenerator gen;
-	auto stream = gen.generate(42);
-#if LOG_LEVEL == LOG_LEVEL_TRACE
-	for (auto ev : stream) {
-		TRACE(ev.toString());
-	}
-#endif
+	auto stream = gen.generate(nSteps);
+	EXPECT_EQ(stream.size(),nSteps * 3 + 1);
+	#if LOG_LEVEL == LOG_LEVEL_TRACE
+		for (auto ev : stream) {
+			TRACE(ev.toString());
+		}
+	#endif
 }
 
 TEST_F(GeneratorsGTest, testErdosRenyiGenerator) {
@@ -519,43 +548,43 @@ TEST_F(GeneratorsGTest, testChungLuGenerator) {
 }
 
 TEST_F(GeneratorsGTest, testChungLuGeneratorDegreeConsistency) {
-    count n = 1000;
-    std::vector<count> vec;
-    count maxDegree = n / 8;
-    /* Creates a random sequence of weights */
-    for (index i = 0; i < n; i++){
-        int grad = Aux::Random::integer(1, maxDegree);
-        vec.push_back(grad);
-    }
-    ChungLuGenerator generator(vec);
-    Graph G = generator.generate();
-    /* We check to see if the actual degrees of our nodes vary too much from the expected ones.
-    * However, we need to sort the expected degrees first, since the algorithm does this as well
-    * and the nodes with the highest degrees are added first. */
-    Aux::Parallel::sort(vec.begin(), vec.end(), [](count a, count b){ return a > b;});
-    /* Check if node degree is more than 50% off from the expected degree of that node. */
-    // TODO Should we be looking for something better than a 50% range here?
-    G.forNodes([&] (node v) {
-    EXPECT_NEAR(G.degree(v), vec[v], (0.5 * maxDegree));
-    });
+	count n = 1000;
+	std::vector<count> vec;
+	count maxDegree = n / 8;
+	/* Creates a random sequence of weights */
+	for (index i = 0; i < n; i++){
+		int grad = Aux::Random::integer(1, maxDegree);
+		vec.push_back(grad);
+	}
+	ChungLuGenerator generator(vec);
+	Graph G = generator.generate();
+	/* We check to see if the actual degrees of our nodes vary too much from the expected ones.
+	* However, we need to sort the expected degrees first, since the algorithm does this as well
+	* and the nodes with the highest degrees are added first. */
+	Aux::Parallel::sort(vec.begin(), vec.end(), [](count a, count b){ return a > b;});
+	/* Check if node degree is more than 50% off from the expected degree of that node. */
+	// TODO Should we be looking for something better than a 50% range here?
+	G.parallelForNodes([&] (node v) {
+		EXPECT_NEAR(G.degree(v), vec[v], (0.5 * maxDegree));
+	});
 }
 
 TEST_F(GeneratorsGTest, testChungLuGeneratorVolumeConsistency) {
-    count n = 1000;
-    std::vector<count> vec;
-    count maxDegree = n / 8;
-    count expectedVolume = 0;
-    /* Creates a random sequence of weights */
-    for (index i = 0; i < n; i++){
-        int grad = Aux::Random::integer(1, maxDegree);
-        vec.push_back(grad);
-        expectedVolume += grad;
-    }
-    ChungLuGenerator generator(vec);
-    Graph G = generator.generate();
-    /* Check if volume is more than 10% off from the expected volume. */
-    //TODO Is a 20% offset here sufficient? */
-    EXPECT_NEAR(G.numberOfEdges() * 2, expectedVolume, 0.2 * expectedVolume);
+	count n = 1000;
+	std::vector<count> vec;
+	count maxDegree = n / 8;
+	count expectedVolume = 0;
+	/* Creates a random sequence of weights */
+	for (index i = 0; i < n; i++){
+		int grad = Aux::Random::integer(1, maxDegree);
+		vec.push_back(grad);
+		expectedVolume += grad;
+	}
+	ChungLuGenerator generator(vec);
+	Graph G = generator.generate();
+	/* Check if volume is more than 10% off from the expected volume. */
+	//TODO Is a 20% offset here sufficient? */
+	EXPECT_NEAR(G.numberOfEdges() * 2, expectedVolume, 0.2 * expectedVolume);
 }
 
 TEST_F(GeneratorsGTest, testHavelHakimiGeneratorOnRandomSequence) {
@@ -793,7 +822,7 @@ TEST_F(GeneratorsGTest, testHyperbolicPointGeneration) {
 	HyperbolicSpace::fillPoints(angles, radii, R, alpha);
 	for (index i = 0; i < n; i++) {
 		EXPECT_GE(angles[i], 0);
-		EXPECT_LT(angles[i], 2*M_PI);
+		EXPECT_LT(angles[i], 2*PI);
 		EXPECT_GE(radii[i], 0);
 		EXPECT_LE(radii[i], R);
 	}
@@ -804,8 +833,8 @@ TEST_F(GeneratorsGTest, testHyperbolicPointGeneration) {
  */
 TEST_F(GeneratorsGTest, testHyperbolicGenerator) {
 	Aux::Random::setSeed(0, false);
-	count n = 100000;
-	double k = 32;
+	count n = 5000;
+	double k = 16;
 	count m = k*n/2;
 	HyperbolicGenerator gen(n,k,7);
 	Graph G = gen.generate();
@@ -819,7 +848,7 @@ TEST_F(GeneratorsGTest, testHyperbolicGenerator) {
  */
 TEST_F(GeneratorsGTest, testHyperbolicGeneratorConsistency) {
 	Aux::Random::setSeed(0, false);
-	count n = 10000;
+	count n = 5000;
 	double k = 6;
 	count m = n*k/2;
 	HyperbolicGenerator gen(n, k);
@@ -830,7 +859,7 @@ TEST_F(GeneratorsGTest, testHyperbolicGeneratorConsistency) {
 
 TEST_F(GeneratorsGTest, testHyperbolicGeneratorMechanicGraphs) {
 	Aux::Random::setSeed(0, false);
-	count n = 10000;
+	count n = 2000;
 	double k = 6;
 	count m = n*k/2;
 	HyperbolicGenerator gen(n, k, 3, 0.14);
@@ -874,7 +903,7 @@ TEST_F(GeneratorsGTest, testConfigurationModelGeneratorOnRealSequence) {
 	}
 }
 
-TEST_F(GeneratorsGTest, tryHyperbolicHighTemperatureGraphs) {
+TEST_F(GeneratorsGTest, debugHyperbolicHighTemperatureGraphs) {
 	count n = 10000;
 	double k = 10;
 	double gamma = 3;
@@ -887,7 +916,7 @@ TEST_F(GeneratorsGTest, tryHyperbolicHighTemperatureGraphs) {
 	}
 }
 
-TEST_F(GeneratorsGTest, tryGiganticCollectionOfHyperbolicTemperatureGraphs) {
+TEST_F(GeneratorsGTest, debugGiganticCollectionOfHyperbolicTemperatureGraphs) {
 	for (index i = 0; i < 30; i++) {
 		count n = 10000;
 		double k = 10;
@@ -900,7 +929,7 @@ TEST_F(GeneratorsGTest, tryGiganticCollectionOfHyperbolicTemperatureGraphs) {
 	}
 }
 
-TEST_F(GeneratorsGTest, tryGiganticCollectionOfHyperbolicUnitDiskGraphs) {
+TEST_F(GeneratorsGTest, debugGiganticCollectionOfHyperbolicUnitDiskGraphs) {
 	count n = 1000000;
 	double k = 1;
 	for (index i = 0; i < 7; i++) {
@@ -914,8 +943,9 @@ TEST_F(GeneratorsGTest, tryGiganticCollectionOfHyperbolicUnitDiskGraphs) {
 }
 
 TEST_F(GeneratorsGTest, testLFRGenerator) {
-	Aux::Random::setSeed(42, true);
-	LFRGenerator gen(1000);
+	Aux::Random::setSeed(42, false);
+	count n = 500;
+	LFRGenerator gen(n);
 	gen.generatePowerlawDegreeSequence(20, 50, -2);
 	gen.generatePowerlawCommunitySizeSequence(10, 50, -1);
 	gen.setMu(0.5);
@@ -923,16 +953,15 @@ TEST_F(GeneratorsGTest, testLFRGenerator) {
 	Graph G1 = gen.getMoveGraph();
 	gen.run(); // should rewire the edges but nothing else
 	Graph G2 = gen.getMoveGraph();
-	EXPECT_EQ(1000, G1.numberOfNodes());
-	EXPECT_EQ(1000, G2.numberOfNodes());
+	EXPECT_EQ(n, G1.numberOfNodes());
+	EXPECT_EQ(n, G2.numberOfNodes());
 	EXPECT_EQ(G1.numberOfEdges(), G2.numberOfEdges());
 }
 
-TEST_F(GeneratorsGTest, tryLFRGeneratorImpossibleSequence) {
-	Aux::Random::setSeed(42, true);
-	LFRGenerator gen(1000);
-	gen.generatePowerlawDegreeSequence(35, 98, -2);
-	gen.generatePowerlawCommunitySizeSequence(10, 50, -3);
+TEST_F(GeneratorsGTest, testLFRGeneratorImpossibleSequence) {
+	LFRGenerator gen(100);
+	gen.generatePowerlawDegreeSequence(10, 11, -2);
+	EXPECT_ANY_THROW(gen.generatePowerlawCommunitySizeSequence(9, 8, -3));
 	gen.setMu(0.5);
 	EXPECT_THROW(gen.run(), std::runtime_error);
 	EXPECT_THROW(gen.getMoveGraph(), std::runtime_error);
@@ -1053,9 +1082,39 @@ TEST_F(GeneratorsGTest, testLFRGeneratorWithRealData) {
 	gen.setPartition(C);
 	gen.setMu(mu);
 	gen.run();
+	Graph G = gen.getGraph();
+	G.parallelForNodes([&](node u){
+		EXPECT_EQ(G.degree(u),degreeSequence[u]);
+	});
+	EXPECT_EQ(C.numberOfSubsets(),gen.getPartition().numberOfSubsets());
 }
 
+TEST_F(GeneratorsGTest, testMocnikGenerator) {
+	count dim = 3;
+	count n = 10000;
+	double k = 2.6;
+
+	MocnikGenerator Mocnik(dim, n, k);
+	Graph G(0);
+	EXPECT_TRUE(G.isEmpty());
+	G = Mocnik.generate();
+	EXPECT_FALSE(G.isEmpty());
+	EXPECT_EQ(G.numberOfNodes(), n);
+	EXPECT_NEAR(G.numberOfEdges() * 1. / G.numberOfNodes(), std::pow(k, dim), 20000);
+}
+
+TEST_F(GeneratorsGTest, testMocnikGeneratorBasic) {
+	count dim = 3;
+	count n = 5000;
+	double k = 2.6;
+
+	MocnikGenerator Mocnik(dim, n, k);
+	Graph G(0);
+	EXPECT_TRUE(G.isEmpty());
+	G = Mocnik.generate();
+	EXPECT_FALSE(G.isEmpty());
+	EXPECT_EQ(G.numberOfNodes(), n);
+	EXPECT_NEAR(G.numberOfEdges() * 1. / G.numberOfNodes(), std::pow(k, dim), 10000);
+}
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

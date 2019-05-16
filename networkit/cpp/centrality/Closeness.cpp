@@ -2,72 +2,152 @@
  * Closeness.cpp
  *
  *  Created on: 03.10.2014
- *      Author: nemes
+ *     Authors: nemes
+ *              Eugenio Angriman <angrimae@hu-berlin.de>
  */
 
-#include <stack>
+#include <omp.h>
 #include <queue>
-#include <memory>
 
-#include "Closeness.h"
-#include "../auxiliary/PrioQueue.h"
-#include "../auxiliary/Log.h"
-#include "../distance/SSSP.h"
-#include "../distance/Dijkstra.h"
-#include "../distance/BFS.h"
-#include "../components/ConnectedComponents.h"
-
+#include "../../include/networkit/centrality/Closeness.hpp"
+#include "../../include/networkit/components/ConnectedComponents.hpp"
+#include "../../include/networkit/components/StronglyConnectedComponents.hpp"
 
 namespace NetworKit {
 
-Closeness::Closeness(const Graph& G, bool normalized, bool checkConnectedness) : Centrality(G, normalized) {
-	// TODO: extend closeness definition to make check for connectedness unnecessary
-	if (checkConnectedness) {
-		ConnectedComponents compo(G);
-		compo.run();
-		if (compo.numberOfComponents() != 1) {
-			throw std::runtime_error("Closeness is undefined on disconnected graphs");
-		}
-	}
+Closeness::Closeness(const Graph &G, bool normalized,
+                     const ClosenessVariant variant)
+    : Centrality(G, normalized), variant(variant) {
+    if (variant == ClosenessVariant::standard) {
+        checkConnectedComponents();
+    }
+}
+
+Closeness::Closeness(const Graph &G, bool normalized, bool checkConnectedness)
+    : Centrality(G, normalized), variant(ClosenessVariant::standard) {
+    if (checkConnectedness)
+        checkConnectedComponents();
+}
+
+void Closeness::checkConnectedComponents() const {
+    bool multipleComponents = false;
+    if (G.isDirected()) {
+        StronglyConnectedComponents scc(G);
+        scc.run();
+        multipleComponents = scc.numberOfComponents() > 1;
+    } else {
+        ConnectedComponents cc(G);
+        cc.run();
+        multipleComponents = cc.numberOfComponents() > 1;
+    }
+    if (multipleComponents) {
+        throw std::runtime_error(
+            "Error: the standard definition of closeness is not defined on "
+            "disconnected graphs. On disconnected graphs, use the generalized "
+            "definition instead.");
+    }
 }
 
 void Closeness::run() {
-	count z = G.upperNodeIdBound();
-	scoreData.clear();
-	scoreData.resize(z);
-	edgeweight infDist = std::numeric_limits<edgeweight>::max();
+    count n = G.upperNodeIdBound();
 
-	G.parallelForNodes([&](node s) {
-		std::unique_ptr<SSSP> sssp;
-		if (G.isWeighted()) {
-			sssp.reset(new Dijkstra(G, s, true, true));
-		} else {
-			sssp.reset(new BFS(G, s, true, true));
-		}
-		sssp->run();
+    scoreData.clear();
+    scoreData.resize(n);
+    visited.clear();
+    visited.resize(omp_get_max_threads(), std::vector<uint8_t>(n));
+    ts.clear();
+    ts.resize(omp_get_max_threads(), 0);
 
-		std::vector<edgeweight> distances = sssp->getDistances();
+    if (G.isWeighted()) {
+        dDist.resize(omp_get_max_threads(), std::vector<double>(n));
+        heaps.reserve(omp_get_max_threads());
+        for (count i = 0; i < omp_get_max_threads(); ++i) {
+            heaps.emplace_back((Compare(dDist[i])));
+            heaps.back().reserve(n);
+        }
+        dijkstra();
+    } else {
+        uDist.resize(omp_get_max_threads(), std::vector<count>(n));
+        bfs();
+    }
 
-		double sum = 0;
-		for (auto dist : distances) {
-			if (dist != infDist ) {
-				sum += dist;
-			}
-		}
-		scoreData[s] = 1 / sum;
-
-	});
-	if (normalized) {
-		G.forNodes([&](node u){
-			scoreData[u] = scoreData[u] * (G.numberOfNodes() - 1);
-		});
-	}
-
-	hasRun = true;
+    hasRun = true;
 }
 
-double Closeness::maximum() {
-	return normalized ? 1.0f : (1.0f / (G.numberOfNodes() - 1));
+void Closeness::bfs() {
+#pragma omp parallel for schedule(dynamic)
+    for (omp_index u = 0; u < static_cast<omp_index>(G.upperNodeIdBound());
+         ++u) {
+        uint8_t &ts_ = ts[omp_get_thread_num()];
+        auto &dist_ = uDist[omp_get_thread_num()];
+        auto &visited_ = visited[omp_get_thread_num()];
+
+        if (ts_++ == 255 && variant != ClosenessVariant::standard) {
+            ts_ = 1;
+            std::fill(visited_.begin(), visited_.end(), 0);
+        }
+
+        std::queue<node> q;
+        q.push(u);
+        dist_[u] = 0;
+        visited_[u] = ts_;
+        double sum = 0.;
+        count reached = 1;
+
+        do {
+            node x = q.front();
+            q.pop();
+            G.forNeighborsOf(x, [&](node y) {
+                if (visited_[y] != ts_) {
+                    visited_[y] = ts_;
+                    dist_[y] = dist_[x] + 1;
+                    sum += dist_[y];
+                    ++reached;
+                    q.push(y);
+                }
+            });
+
+        } while (!q.empty());
+
+        updateScoreData(u, reached, sum);
+    }
 }
 
-} /* namespace NetworKit */
+void Closeness::dijkstra() {
+#pragma omp parallel for schedule(dynamic)
+    for (omp_index u = 0; u < static_cast<omp_index>(G.upperNodeIdBound());
+         ++u) {
+        uint8_t &ts_ = ts[omp_get_thread_num()];
+        auto &dist_ = dDist[omp_get_thread_num()];
+        auto &visited_ = visited[omp_get_thread_num()];
+        auto &heap = heaps[omp_get_thread_num()];
+
+        if (ts_++ == 255 && variant != ClosenessVariant::standard) {
+            ts_ = 1;
+            std::fill(visited_.begin(), visited_.end(), 0);
+        }
+
+        heap.push(u);
+        dist_[u] = 0.;
+        double sum = 0.;
+        count reached = 1;
+
+        do {
+            node x = heap.extract_top();
+            sum += dist_[x];
+            G.forNeighborsOf(x, [&](node y, edgeweight ew) {
+                if (ts_ != visited_[y]) {
+                    ++reached;
+                    visited_[y] = ts_;
+                    dist_[y] = dist_[x] + ew;
+                    heap.push(y);
+                } else if (dist_[y] > dist_[x] + ew) {
+                    dist_[y] = dist_[x] + ew;
+                    heap.update(y);
+                }
+            });
+        } while (!heap.empty());
+        updateScoreData(u, reached, sum);
+    }
+}
+} // namespace NetworKit

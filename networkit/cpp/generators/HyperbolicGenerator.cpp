@@ -1,13 +1,13 @@
 /*
  * HyperbolicGenerator.cpp
  *
- *      Authors: Mustafa Özdayi and Moritz v. Looz (moritz.looz-corswarem@kit.edu)
+ *      Authors: Mustafa zdayi and Moritz v. Looz (moritz.looz-corswarem@kit.edu)
  *
  * This generator contains algorithms described in two publications.
  *
  * For T=0, the relevant publication is
  * "Generating massive complex networks with hyperbolic geometry faster in practice" by
- * Moritz von Looz, Mustafa Özdayi, Sören Laue and Henning Meyerhenke, presented at HPEC 2016.
+ * Moritz von Looz, Mustafa zdayi, Sren Laue and Henning Meyerhenke, presented at HPEC 2016.
  *
  * For T>0, it is
  * "Querying Probabilistic Neighborhoods in Spatial Data Sets Efficiently" by Moritz von Looz
@@ -19,18 +19,19 @@
  *
  */
 
+#include <cmath>
+
 #include <cstdlib>
 #include <random>
-#include <math.h>
 #include <assert.h>
 #include <omp.h>
 #include <algorithm>
 
-#include "../graph/GraphBuilder.h"
-#include "HyperbolicGenerator.h"
-#include "quadtree/Quadtree.h"
-#include "../auxiliary/Random.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/graph/GraphBuilder.hpp"
+#include "../../include/networkit/generators/HyperbolicGenerator.hpp"
+#include "../../include/networkit/generators/quadtree/Quadtree.hpp"
+#include "../../include/networkit/auxiliary/Random.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
@@ -87,7 +88,7 @@ Graph HyperbolicGenerator::generate(count n, double R, double alpha, double T) {
 	vector<double> radiicopy(n);
 
 	#pragma omp parallel for
-	for (index j = 0; j < n; j++) {
+	for (omp_index j = 0; j < static_cast<omp_index>(n); j++) {
 		anglecopy[j] = angles[permutation[j]];
 		radiicopy[j] = radii[permutation[j]];
 	}
@@ -106,7 +107,7 @@ Graph HyperbolicGenerator::generateCold(const vector<double> &angles, const vect
 
 	vector<index> permutation(n);
 	#pragma omp parallel for
-	for (index i = 0; i< n; i++) {
+	for (omp_index i = 0; i < static_cast<omp_index>(n); i++) {
 		permutation[i] = i;
 	}
 
@@ -118,7 +119,7 @@ Graph HyperbolicGenerator::generateCold(const vector<double> &angles, const vect
 	vector<vector<Point2D<double>>> bands(bandRadii.size() - 1);
 	//Put points to bands
 	#pragma omp parallel for
-	for (index j = 0; j < bands.size(); j++){
+	for (omp_index j = 0; j < static_cast<omp_index>(bands.size()); j++){
 		for (index i = 0; i < n; i++){
 			double alias = permutation[i];
 			if (radii[alias] >= bandRadii[j] && radii[alias] <= bandRadii[j+1]){
@@ -137,7 +138,7 @@ Graph HyperbolicGenerator::generateCold(const vector<double> &angles, const vect
 	//1.Extract band angles to use them later, can create a band class to handle this more elegantly
 	vector<vector<double>> bandAngles(bandCount);
 	#pragma omp parallel for
-	for (index i=0; i < bandCount; i++){
+	for (omp_index i=0; i < static_cast<omp_index>(bandCount); i++){
 		const count currentBandSize = bands[i].size();
 		bandAngles[i].resize(currentBandSize);
 		for(index j=0; j < currentBandSize; j++) {
@@ -161,10 +162,10 @@ Graph HyperbolicGenerator::generateCold(const vector<double> &angles, const vect
 		index id = omp_get_thread_num();
 		threadtimers[id].start();
 		#pragma omp for schedule(guided) nowait
-		for (index i = 0; i < n; i++) {
+		for (omp_index i = 0; i < static_cast<omp_index>(n); i++) {
 			const double coshr = cosh(radii[i]);
 			const double sinhr = sinh(radii[i]);
-			count expectedDegree = (4/M_PI)*n*exp(-(radii[i])/2);
+			count expectedDegree = (4/PI)*n*exp(-(radii[i])/2);
 			vector<index> near;
 			near.reserve(expectedDegree*1.1);
 			Point2D<double> pointV(angles[i], radii[i], i);
@@ -173,12 +174,12 @@ Graph HyperbolicGenerator::generateCold(const vector<double> &angles, const vect
 					double minTheta, maxTheta;
 					std::tie (minTheta, maxTheta) = getMinMaxTheta(angles[i], radii[i], bandRadii[j], R);
 					//minTheta = 0;
-					//maxTheta = 2*M_PI;
+					//maxTheta = 2*PI;
 					vector<Point2D<double>> neighborCandidates = getPointsWithinAngles(minTheta, maxTheta, bands[j], bandAngles[j]);
 
 					const count sSize = neighborCandidates.size();
 					for(index w = 0; w < sSize; w++){
-						double deltaPhi = M_PI - abs(M_PI-abs(angles[i] - neighborCandidates[w].getX()));
+						double deltaPhi = PI - abs(PI-abs(angles[i] - neighborCandidates[w].getX()));
 						if (coshr*cosh(neighborCandidates[w].getY())-sinhr*sinh(neighborCandidates[w].getY())*cos(deltaPhi) <= coshR) {
 							if (neighborCandidates[w].getIndex() != i){
 								near.push_back(neighborCandidates[w].getIndex());
@@ -248,7 +249,7 @@ Graph HyperbolicGenerator::generate(const vector<double> &angles, const vector<d
 	GraphBuilder result(n, false, false);//no direct swap with probabilistic graphs
 	count totalCandidates = 0;
 	#pragma omp parallel for
-	for (index i = 0; i < n; i++) {
+	for (omp_index i = 0; i < static_cast<omp_index>(n); i++) {
 		vector<index> near;
 		totalCandidates += quad.getElementsProbabilistically(HyperbolicSpace::polarToCartesian(angles[i], radii[i]), edgeProb, anglesSorted, near);
 		for (index j : near) {

@@ -7,9 +7,9 @@
 
 #include <list>
 
-#include "KatzIndex.h"
-#include "PredictionsSorter.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/linkprediction/KatzIndex.hpp"
+#include "../../include/networkit/linkprediction/PredictionsSorter.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
@@ -70,7 +70,7 @@ std::vector<LinkPredictor::prediction> KatzIndex::runOn(std::vector<std::pair<no
   {
     KatzIndex katz(*G, maxPathLength, dampingValue);
     #pragma omp for schedule(guided)
-    for (index i = 0; i < nodePairs.size(); ++i) {
+    for (omp_index i = 0; i < static_cast<omp_index>(nodePairs.size()); ++i) {
       predictions[i] = std::make_pair(nodePairs[i], katz.run(nodePairs[i].first, nodePairs[i].second));
     }
   }
@@ -79,7 +79,7 @@ std::vector<LinkPredictor::prediction> KatzIndex::runOn(std::vector<std::pair<no
 }
 
 void KatzIndex::calcDampingFactors() {
-  dampingFactors.reserve(maxPathLength + 1);
+  dampingFactors.resize(maxPathLength + 1);
   dampingFactors[0] = 1;
   for (count i = 1; i <= maxPathLength; ++i) {
     dampingFactors[i] = std::pow(dampingValue, i);

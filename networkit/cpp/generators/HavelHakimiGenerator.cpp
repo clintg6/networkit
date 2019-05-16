@@ -6,15 +6,15 @@
  *      Contributors: Hoske/Weisbarth
  */
 
-#include "HavelHakimiGenerator.h"
+#include "../../include/networkit/generators/HavelHakimiGenerator.hpp"
 
 #include <list>
 #include <stack>
-#include "../auxiliary/Log.h"
+#include "../../include/networkit/auxiliary/Log.hpp"
 
 namespace NetworKit {
 
-HavelHakimiGenerator::HavelHakimiGenerator(const std::vector< NetworKit::count > &sequence, bool ignoreIfRealizable) :
+HavelHakimiGenerator::HavelHakimiGenerator(const std::vector<count> &sequence, bool ignoreIfRealizable) :
 		StaticDegreeSequenceGenerator(sequence), ignoreIfRealizable(ignoreIfRealizable) {
 }
 

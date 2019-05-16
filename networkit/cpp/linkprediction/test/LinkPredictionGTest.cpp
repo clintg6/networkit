@@ -5,31 +5,42 @@
  *      Author: Kolja Esders (kolja.esders@student.kit.edu)
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
 #include <chrono>
 
-#include "LinkPredictionGTest.h"
-#include "../../io/METISGraphReader.h"
-#include "../KatzIndex.h"
-#include "../CommonNeighborsIndex.h"
-#include "../JaccardIndex.h"
-#include "../ROCMetric.h"
-#include "../PrecisionRecallMetric.h"
-#include "../RandomLinkSampler.h"
-#include "../MissingLinksFinder.h"
-#include "../UDegreeIndex.h"
-#include "../VDegreeIndex.h"
-#include "../LinkThresholder.h"
-#include "../TotalNeighborsIndex.h"
-#include "../NeighborsMeasureIndex.h"
-#include "../SameCommunityIndex.h"
-#include "../PredictionsSorter.h"
+#include "../../../include/networkit/graph/Graph.hpp"
+
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/linkprediction/KatzIndex.hpp"
+#include "../../../include/networkit/linkprediction/CommonNeighborsIndex.hpp"
+#include "../../../include/networkit/linkprediction/JaccardIndex.hpp"
+#include "../../../include/networkit/linkprediction/ROCMetric.hpp"
+#include "../../../include/networkit/linkprediction/PrecisionRecallMetric.hpp"
+#include "../../../include/networkit/linkprediction/RandomLinkSampler.hpp"
+#include "../../../include/networkit/linkprediction/MissingLinksFinder.hpp"
+#include "../../../include/networkit/linkprediction/UDegreeIndex.hpp"
+#include "../../../include/networkit/linkprediction/VDegreeIndex.hpp"
+#include "../../../include/networkit/linkprediction/LinkThresholder.hpp"
+#include "../../../include/networkit/linkprediction/TotalNeighborsIndex.hpp"
+#include "../../../include/networkit/linkprediction/NeighborsMeasureIndex.hpp"
+#include "../../../include/networkit/linkprediction/SameCommunityIndex.hpp"
+#include "../../../include/networkit/linkprediction/PredictionsSorter.hpp"
+#include "../../../include/networkit/linkprediction/LinkPredictor.hpp"
 
 namespace NetworKit {
 
-LinkPredictionGTest::LinkPredictionGTest() : G(7) {
-}
+class LinkPredictionGTest : public testing::Test {
+public:
+    void SetUp();
+
+protected:
+    Graph G{7};
+    Graph trainingGraph;
+
+    std::vector<std::pair<node, node>> missingLinks;
+    std::vector<LinkPredictor::prediction> predictions;
+};
 
 void LinkPredictionGTest::SetUp() {
   G.addEdge(0, 1);
@@ -189,5 +200,3 @@ TEST_F(LinkPredictionGTest, testKatzRunOnOrdering) {
 }
 
 } // namespace NetworKit
-
-#endif /* NOGTEST */

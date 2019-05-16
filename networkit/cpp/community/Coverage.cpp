@@ -5,8 +5,8 @@
  *      Author: Christian Staudt (christian.staudt@kit.edu)
  */
 
-#include "Coverage.h"
-#include "../auxiliary/Log.h"
+#include "../../include/networkit/community/Coverage.hpp"
+#include "../../include/networkit/auxiliary/Log.hpp"
 
 namespace NetworKit {
 
@@ -47,7 +47,8 @@ double Coverage::getQuality(const Partition& zeta, const Graph& G) {
 
 	double intraEdgeWeightSum = 0.0; //!< term $\sum_{C \in \zeta} \sum_{ e \in E(C) } \omega(e)$
 	#pragma omp parallel for reduction(+:intraEdgeWeightSum)
-	for (index c = zeta.lowerBound(); c < zeta.upperBound(); ++c) {
+	for (omp_index c = static_cast<omp_index>(zeta.lowerBound());
+		 c < static_cast<omp_index>(zeta.upperBound()); ++c) {
 		intraEdgeWeightSum += intraEdgeWeight[c];
 	}
 	TRACE("total intra-cluster edge weight = " , intraEdgeWeightSum);

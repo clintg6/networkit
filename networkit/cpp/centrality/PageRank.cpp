@@ -5,19 +5,19 @@
  *      Author: Henning
  */
 
-#include "PageRank.h"
-#include "../auxiliary/NumericTools.h"
-#include "../auxiliary/SignalHandling.h"
+#include "../../include/networkit/centrality/PageRank.hpp"
+#include "../../include/networkit/auxiliary/NumericTools.hpp"
+#include "../../include/networkit/auxiliary/SignalHandling.hpp"
 
 namespace NetworKit {
 
-NetworKit::PageRank::PageRank(const Graph& G, double damp, double tol):
+PageRank::PageRank(const Graph& G, double damp, double tol):
 		Centrality(G, true), damp(damp), tol(tol)
 {
 
 }
 
-void NetworKit::PageRank::run() {
+void PageRank::run() {
 	Aux::SignalHandler handler;
 	count n = G.numberOfNodes();
 	count z = G.upperNodeIdBound();

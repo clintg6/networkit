@@ -20,23 +20,28 @@ and integration into the Python ecosystem of tools for data analysis and
 scientific computation.
 
 
-Usage examples can be found on http://nbviewer.ipython.org/urls/networkit.iti.kit.edu/data/uploads/docs/NetworKit_UserGuide.ipynb
+Usage examples can be found on https://github.com/kit-parco/networkit/blob/Dev/notebooks/User-Guide.ipynb
 """
 
 __author__ = "Christian Staudt"
 __copyright__ = "Copyright (c) 2014 Christan Staudt"
-__credits__ = ["Lukas Barth", "Miriam Beddig", "Elisabetta Bergamini", "Stefan Bertsch", "Pratistha Bhattarai", "Andreas Bilke", "Simon Bischof", \
-	"Guido Brückner", "Mark Erb", "Patrick Flick", "Michael Hamann", "Lukas Hartmann", "Daniel Hoske", "Gerd Lindner", "Moritz v. Looz", "Yassine Marrakchi", "Henning Meyerhenke", \
-	"Marcel Radermacher", "Klara Reichard", "Marvin Ritter", "Aleksejs Sazonovs", "Florian Weber", "Michael Wegner", "Jörg Weisbarth", "Kolja Esders"]
+__credits__ = ["Eugenio Angriman", "Lukas Barth", "Miriam Beddig", "Elisabetta Bergamini", "Stefan Bertsch", "Pratistha Bhattarai", "Andreas Bilke", "Simon Bischof", \
+	"Guido Brückner", "Mark Erb",  "Kolja Esders", "Patrick Flick", "Michael Hamann", "Lukas Hartmann", "Daniel Hoske", "Gerd Lindner", "Moritz v. Looz", "Yassine Marrakchi", "Henning Meyerhenke", \
+	"Manuel Penschuck", "Marcel Radermacher", "Klara Reichard", "Marvin Ritter", "Aleksejs Sazonovs", "Hung Tran", "Florian Weber", "Michael Wegner", "Jörg Weisbarth", "Kolja Esders"]
 __license__ = "MIT"
-__version__ = "4.5"
-
+__version__ = "5.0"
 
 # standard library modules
 import csv
 import os
 import logging
 import sys
+
+# pyplot might not be available in non-interactive environments.
+try:
+	import matplotlib.pyplot as _pyplot
+except ImportError as importError:
+	_pyplot = None
 
 # local imports
 from . import stopwatch
@@ -55,7 +60,6 @@ from . import partitioning
 from . import coloring
 from . import workflows
 from . import flow
-from . import plot
 from . import sparsification
 from . import scd
 from . import clique
@@ -68,17 +72,19 @@ from . import simulation
 from . import stats
 from . import sampling
 from . import viz
-from .profiling import profiling
+from . import randomization
+
+if _pyplot is not None:
+	from . import plot
+	from .profiling import profiling
+else:
+	print("WARNING: pyplot is not available; some functionality is disabled", file=sys.stderr)
 
 try:
 	from . import viztasks
 except ImportError as importError:
-	print("""WARNING: some dependencies are not satisfied which are needed to use the
-		'viztasks' submodule""")
-	print(importError)
-
-
-
+	print("WARNING: some dependencies are not satisfied"
+			" which are needed to use the 'viztasks' submodule", file=sys.stderr)
 
 #--------- Top Level Classes and Functions ----------------#
 #
@@ -95,24 +101,29 @@ from .graph import Graph
 from .structures import Partition, Cover
 from .graphio import readGraph, writeGraph, readGraphs, Format
 
+
 def overview(G):
 	"""
 		This function collects some basic information about the given graph and prints it to the terminal.
 	"""
 	n = G.numberOfNodes()
-	degrees = centrality.DegreeCentrality(G,ignoreSelfLoops=G.numberOfSelfLoops() == 0).run().scores()
+	degrees = centrality.DegreeCentrality(
+		G, ignoreSelfLoops=G.numberOfSelfLoops() == 0).run().scores()
 	numSelfLoops = G.numberOfSelfLoops()
+
 	def getIsolatedNodes(degrees):
 		sequence = sorted(degrees)
 		i = 0
 		nIsolated = 0
-		while sequence[i] == 0 and i < len(sequence):
+		while i < len(sequence) and sequence[i] == 0:
 			nIsolated += 1
 			i += 1
 		return nIsolated
+
 	def getClusteringCoefficient(G):
 		lcc = centrality.LocalClusteringCoefficient(G, True).run().scores()
 		return sum(lcc) / n
+
 	def getComponentPartition(G):
 		if G.isDirected():
 			cc = components.StronglyConnectedComponents(G).run()
@@ -128,26 +139,32 @@ def overview(G):
 	print("self-loops\t\t\t{}".format(numSelfLoops))
 	print("density\t\t\t\t{:.6f}".format(G.density()))
 	if numSelfLoops == 0 and not G.isDirected():
-		print("clustering coefficient\t\t{:.6f}".format(getClusteringCoefficient(G)))
-	print("min/max/avg degree\t\t{:d}, {:d}, {:.6f}".format(int(min(degrees)), int(max(degrees)), sum(degrees)/n))
-	print("degree assortativity\t\t{:.6f}".format(correlation.Assortativity(G, degrees).run().getCoefficient()))
+		print("clustering coefficient\t\t{:.6f}".format(
+			getClusteringCoefficient(G)))
+	print("min/max/avg degree\t\t{:d}, {:d}, {:.6f}".format(
+		int(min(degrees)), int(max(degrees)),
+		sum(degrees) / n))
+	print("degree assortativity\t\t{:.6f}".format(
+		correlation.Assortativity(G, degrees).run().getCoefficient()))
 	cp = getComponentPartition(G)
 	lcs = max(cp.subsetSizes())
 	print("number of connected components\t{}".format(cp.numberOfSubsets()))
-	print("size of largest component\t{} ({:.2f} %)".format(lcs, 100*lcs/n))
+	print("size of largest component\t{} ({:.2f} %)".format(
+		lcs, 100 * lcs / n))
+
 
 #-------- Setup ---------- #
 
+
 def setup():
 	""" This function is run once on module import to configure initial settings """
-	setLogLevel("ERROR")    # set default loglevel for C++ code
+	setLogLevel("ERROR")  # set default loglevel for C++ code
 	setPrintLocation(True)
-	enableNestedParallelism()	# enable nested parallelism
-	logging.basicConfig(level=logging.INFO)	# set default loglevel for Python code
+	enableNestedParallelism()  # enable nested parallelism
+	logging.basicConfig(
+		level=logging.INFO)  # set default loglevel for Python code
 
 
-
-setup() # here the setup function is called once on import
-
+setup()  # here the setup function is called once on import
 
 # in general, no implementations here

@@ -5,15 +5,15 @@
  *      Author: cls
  */
 
-#include "GraphUpdater.h"
-#include "../auxiliary/Log.h"
+#include "../../include/networkit/dynamics/GraphUpdater.hpp"
+#include "../../include/networkit/auxiliary/Log.hpp"
 
 namespace NetworKit {
 
 GraphUpdater::GraphUpdater(Graph& G) : G(G) {
 }
 
-void GraphUpdater::update(std::vector<GraphEvent>& stream) {
+void GraphUpdater::update(const std::vector<GraphEvent>& stream) {
 	for (GraphEvent ev : stream) {
 		TRACE("event: " , ev.toString());
 		switch (ev.type) {

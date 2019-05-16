@@ -5,58 +5,55 @@
  *      Author: ebergamini
  */
 
-#include "SSSPGTest.h"
-#include "../DynBFS.h"
-#include "../BFS.h"
-#include "../DynDijkstra.h"
-#include "../Dijkstra.h"
-#include "../../io/METISGraphReader.h"
-#include "../../auxiliary/Log.h"
+#include <gtest/gtest.h>
+
+#include "../../../include/networkit/distance/DynBFS.hpp"
+#include "../../../include/networkit/distance/BFS.hpp"
+#include "../../../include/networkit/distance/DynDijkstra.hpp"
+#include "../../../include/networkit/distance/Dijkstra.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/auxiliary/Log.hpp"
 
 #include <stack>
 
-
 namespace NetworKit {
 
+class SSSPGTest: public testing::Test{};
+
 TEST_F(SSSPGTest, testDijkstra) {
-/* Graph:
-         ______
-		/      \
-	   0    3   6
-		\  / \ /
-		 2    5
-		/  \ / \
-	   1    4   7
-*/
-	int n = 8;
-	Graph G(n, true);
+    /* Graph:
+             ______
+        /      \
+         0    3   6
+        \  / \ /
+         2    5
+        /  \ / \
+         1    4   7
+    */
+    int n = 8;
+    Graph G(n, true);
 
-	G.addEdge(0, 2);
-	G.addEdge(1, 2);
-	G.addEdge(2, 3);
-	G.addEdge(2, 4);
-	G.addEdge(3, 5);
-	G.addEdge(4, 5);
-	G.addEdge(5, 6);
-	G.addEdge(5, 7);
-	G.addEdge(0, 6);
+    G.addEdge(0, 2);
+    G.addEdge(1, 2);
+    G.addEdge(2, 3);
+    G.addEdge(2, 4);
+    G.addEdge(3, 5);
+    G.addEdge(4, 5);
+    G.addEdge(5, 6);
+    G.addEdge(5, 7);
+    G.addEdge(0, 6);
 
-
-	Dijkstra sssp(G, 5, true, true);
-	sssp.run();
-	std::vector<node> stack = sssp.getNodesSortedByDistance();
-#if LOG_LEVEL >= LOG_LEVEL_DEBUG
-	while (!stack.empty()) {
-		DEBUG(stack.back());
-		stack.pop_back();
-	}
-#endif
+    Dijkstra sssp(G, 5, true, true);
+    EXPECT_NO_THROW(sssp.run());
+    std::vector<node> stack = sssp.getNodesSortedByDistance();
+    for (count i = 0; i < stack.size() - 1; ++i)
+        EXPECT_LE(sssp.distance(stack[i]), sssp.distance(stack[i + 1]));
 }
 
 TEST_F(SSSPGTest, testShortestPaths) {
 	METISGraphReader reader;
 	Graph G = reader.read("input/PGPgiantcompo.graph");
-	INFO("The graph has been read.");
+	DEBUG("The graph has been read.");
 	int source = 2;
 	BFS bfs(G, source);
 	bfs.run();
@@ -72,14 +69,14 @@ TEST_F(SSSPGTest, testShortestPaths) {
 	std::set<std::vector<node>> paths = bfs.getPaths(x, true);
 	count i = 0;
 	for (auto path : paths) {
-		INFO("Path number ", i);
+		DEBUG("Path number ", i);
 		i ++;
-		INFO(path);
+		DEBUG(path);
 		EXPECT_EQ(path[0], source);
 		EXPECT_EQ(path[dist], x);
 	}
-	INFO("Maximum number of shortest paths: ", bfs.numberOfPaths(x));
-	INFO("Distance: ", dist);
+	DEBUG("Maximum number of shortest paths: ", bfs.numberOfPaths(x));
+	DEBUG("Distance: ", dist);
 }
 
 TEST_F(SSSPGTest, testGetAllShortestPaths) {
@@ -105,16 +102,21 @@ TEST_F(SSSPGTest, testGetAllShortestPaths) {
 	G.addEdge(7, 8);
 	G.addEdge(8, 9);
 	G.addEdge(8, 10);
-	Dijkstra sssp(G, 0, true, false);
-	sssp.run();
-	std::set<std::vector<node>> paths = sssp.getPaths(9, true);
+	Dijkstra sssp(G, 0);
+	EXPECT_NO_THROW(sssp.run());
+
+
+	std::set<std::vector<node>> paths = sssp.getPaths(9);
+	ASSERT_EQ(paths.size(),4);
+	std::vector<node> path1 {0,2,3,5,6,8,9};
+	std::vector<node> path2 {0,2,3,5,7,8,9};
+	std::vector<node> path3 {0,2,4,5,6,8,9};
+	std::vector<node> path4 {0,2,4,5,7,8,9};
+	std::vector<std::vector<node>> results {path1, path2, path3, path4};
 	count i = 0;
 	for (auto path : paths) {
-		INFO("Path number ", i);
-		i ++;
-		for (node n : path) {
-			INFO(n);
-		}
+		ASSERT_EQ(path,results[i]);
+		i++;
 	}
 }
 

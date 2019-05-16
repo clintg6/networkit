@@ -5,15 +5,17 @@
  *      Author: Michael Wegner (michael.wegner@student.kit.edu)
  */
 
-#include "AlgebraicTriangleCountingGTest.h"
+#include <gtest/gtest.h>
 
-#include "../../CSRMatrix.h"
-#include "../AlgebraicTriangleCounting.h"
-#include "../../../auxiliary/Timer.h"
-#include "../../../io/SNAPGraphReader.h"
-#include "../../../centrality/LocalClusteringCoefficient.h"
+#include "../../../../include/networkit/algebraic/CSRMatrix.hpp"
+#include "../../../../include/networkit/algebraic/algorithms/AlgebraicTriangleCounting.hpp"
+#include "../../../../include/networkit/auxiliary/Timer.hpp"
+#include "../../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../../include/networkit/centrality/LocalClusteringCoefficient.hpp"
 
 namespace NetworKit {
+
+class AlgebraicTriangleCountingGTest : public testing::Test {};
 
 TEST(AlgebraicTriangleCountingGTest, testToyGraphOne) {
 	Graph graph(5);
@@ -129,8 +131,8 @@ TEST(AlgebraicTriangleCountingGTest, testDirectedToyGraphThree) {
 }
 
 TEST(AlgebraicTriangleCountingGTest, testLocalClusteringCoefficient) {
-	SNAPGraphReader reader;
-	Graph graph = reader.read("input/wiki-Vote.txt");
+	METISGraphReader reader;
+	Graph graph = reader.read("input/celegans_metabolic.graph");
 	INFO("graph has ", graph.numberOfNodes(), " nodes and ", graph.numberOfEdges(), " edges and directed? ", graph.isDirected());
 
 	Aux::Timer timer;

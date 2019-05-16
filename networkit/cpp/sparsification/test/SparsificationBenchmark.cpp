@@ -5,38 +5,37 @@
  *      Author: Gerd Lindner
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
-#include "SparsificationBenchmark.h"
-#include "../../edgescores/ChibaNishizekiTriangleEdgeScore.h"
-#include "../../edgescores/TriangleEdgeScore.h"
-#include "../../edgescores/PrefixJaccardScore.h"
-#include "../SimmelianOverlapScore.h"
-#include "../MultiscaleScore.h"
-#include "../LocalSimilarityScore.h"
-#include "../RandomEdgeScore.h"
-#include "../GlobalThresholdFilter.h"
-#include "../../io/METISGraphReader.h"
-#include "../../auxiliary/Log.h"
+#include "../../../include/networkit/graph/Graph.hpp"
+#include "../../../include/networkit/auxiliary/Timer.hpp"
+#include "../../../include/networkit/edgescores/ChibaNishizekiTriangleEdgeScore.hpp"
+#include "../../../include/networkit/edgescores/TriangleEdgeScore.hpp"
+#include "../../../include/networkit/edgescores/PrefixJaccardScore.hpp"
+#include "../../../include/networkit/sparsification/SimmelianOverlapScore.hpp"
+#include "../../../include/networkit/sparsification/MultiscaleScore.hpp"
+#include "../../../include/networkit/sparsification/LocalSimilarityScore.hpp"
+#include "../../../include/networkit/sparsification/RandomEdgeScore.hpp"
+#include "../../../include/networkit/sparsification/GlobalThresholdFilter.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/auxiliary/Log.hpp"
 
 namespace NetworKit {
 
-SparsificationBenchmark::SparsificationBenchmark() {
-	this->n = 250;
-	INFO("n = " , this->n);
-}
+class SparsificationBenchmark: public testing::Test {
+protected:
+	const int64_t n {250};
 
-SparsificationBenchmark::~SparsificationBenchmark() {
-}
-
-Graph SparsificationBenchmark::makeCompleteGraph(count n) {
-	Graph G(n);
-	G.forNodePairs([&](node u, node v){
-		G.addEdge(u,v);
-	});
-	G.shrinkToFit();
-	return G;
-}
+public:
+	Graph makeCompleteGraph(count n) {
+		Graph G(n);
+		G.forNodePairs([&](node u, node v){
+			G.addEdge(u,v);
+		});
+		G.shrinkToFit();
+		return G;
+	}
+};
 
 TEST_F(SparsificationBenchmark, completeGraphSimmelianSparsificationParametric) {
 	int64_t n = this->n;
@@ -228,5 +227,3 @@ TEST_F(SparsificationBenchmark, SparsificationBenchmarkGraphFile) {
 }
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

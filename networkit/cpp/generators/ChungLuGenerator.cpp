@@ -8,13 +8,13 @@
 
 #include <numeric>
 
-#include "ChungLuGenerator.h"
-#include "../graph/GraphBuilder.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/generators/ChungLuGenerator.hpp"
+#include "../../include/networkit/graph/GraphBuilder.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
-ChungLuGenerator::ChungLuGenerator(const std::vector< NetworKit::count > &degreeSequence) :
+ChungLuGenerator::ChungLuGenerator(const std::vector<count> &degreeSequence) :
 		StaticDegreeSequenceGenerator(degreeSequence) {
 	sum_deg = std::accumulate(seq.begin(), seq.end(), 0);
 	n = (count) seq.size();

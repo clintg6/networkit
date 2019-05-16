@@ -5,13 +5,18 @@
  *      Author: Gerd Lindner
  */
 
-#ifndef NOGTEST
-
-#include "LocalDegreeGTest.h"
-#include "../LocalDegreeScore.h"
+#include <gtest/gtest.h>
+#include "../../../include/networkit/Globals.hpp"
+#include "../../../include/networkit/graph/Graph.hpp"
+#include "../../../include/networkit/sparsification/LocalDegreeScore.hpp"
 #include <math.h>
 
 namespace NetworKit {
+
+class LocalDegreeGTest: public testing::Test {
+protected:
+	static double getScore(const Graph& g, node x, node y, count rankX, count rankY);
+};
 
 TEST_F(LocalDegreeGTest, testAttributeSimple) {
 	Graph g(22);
@@ -69,5 +74,3 @@ double LocalDegreeGTest::getScore(const Graph& g, node x, node y, count rankX, c
 
 }
 /* namespace NetworKit */
-
-#endif /*NOGTEST */

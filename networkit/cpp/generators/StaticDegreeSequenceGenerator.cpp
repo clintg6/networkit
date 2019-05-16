@@ -5,13 +5,13 @@
  *      Author: Henning
  */
 
-#include "StaticDegreeSequenceGenerator.h"
-#include "../auxiliary/Log.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/generators/StaticDegreeSequenceGenerator.hpp"
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
-StaticDegreeSequenceGenerator::StaticDegreeSequenceGenerator(const std::vector< NetworKit::count > &sequence):
+StaticDegreeSequenceGenerator::StaticDegreeSequenceGenerator(const std::vector<count> &sequence):
 		seq(sequence), realizable(UNKNOWN)
 {
 

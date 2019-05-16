@@ -5,15 +5,15 @@
  *      Author: Gerd Lindner
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
-#include "MultiscaleBackboneGTest.h"
-
-#include "../Sparsifiers.h"
-#include "../MultiscaleScore.h"
+#include "../../../include/networkit/sparsification/Sparsifiers.hpp"
+#include "../../../include/networkit/sparsification/MultiscaleScore.hpp"
 
 
 namespace NetworKit {
+
+class MultiscaleBackboneGTest: public testing::Test {};
 
 TEST_F(MultiscaleBackboneGTest, testSimpleMultiscaleBackbone) {
 	Graph g(6, true, false);
@@ -62,5 +62,3 @@ TEST_F(MultiscaleBackboneGTest, testSimpleMultiscaleBackbone) {
 
 }
 /* namespace NetworKit */
-
-#endif /*NOGTEST */

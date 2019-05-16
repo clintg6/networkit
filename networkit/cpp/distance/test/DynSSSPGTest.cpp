@@ -5,19 +5,22 @@
  *      Author: ebergamini
  */
 
-#include "DynSSSPGTest.h"
-#include "../DynBFS.h"
-#include "../BFS.h"
-#include "../DynDijkstra.h"
-#include "../Dijkstra.h"
-#include "../../io/METISGraphReader.h"
-#include "../../auxiliary/Log.h"
-#include "../../generators/DorogovtsevMendesGenerator.h"
-#include "../../graph/Sampling.h"
+#include <gtest/gtest.h>
+
+#include "../../../include/networkit/distance/DynBFS.hpp"
+#include "../../../include/networkit/distance/BFS.hpp"
+#include "../../../include/networkit/distance/DynDijkstra.hpp"
+#include "../../../include/networkit/distance/Dijkstra.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/auxiliary/Log.hpp"
+#include "../../../include/networkit/generators/DorogovtsevMendesGenerator.hpp"
+#include "../../../include/networkit/graph/Sampling.hpp"
 #include <random>
 
 
 namespace NetworKit {
+
+class DynSSSPGTest: public testing::Test{};
 
 TEST_F(DynSSSPGTest, testDynamicBFS_1edge) {
 /* Graph:
@@ -165,7 +168,7 @@ TEST_F(DynSSSPGTest, testDynamicDijkstra) {
 
 TEST_F(DynSSSPGTest, testDynamicBFSGeneratedGraph) {
 	METISGraphReader reader;
-	DorogovtsevMendesGenerator generator(1000);
+	DorogovtsevMendesGenerator generator(500);
 	Graph G = generator.generate();
 	DEBUG("Generated graph of dimension ", G.upperNodeIdBound());
 	DynBFS dyn_bfs(G, 0);
@@ -173,7 +176,7 @@ TEST_F(DynSSSPGTest, testDynamicBFSGeneratedGraph) {
 	dyn_bfs.run();
 	bfs.run();
 	DEBUG("Before the edge insertion: ");
-	count nInsertions = 1000, i = 0;
+	count nInsertions = 750, i = 0;
 	while (i < nInsertions) {
 		DEBUG("Sampling a new edge");
 		node v1 = Sampling::randomNode(G);

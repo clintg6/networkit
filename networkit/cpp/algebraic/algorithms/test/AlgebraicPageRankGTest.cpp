@@ -5,16 +5,18 @@
  *      Author: Michael
  */
 
-#include "AlgebraicPageRankGTest.h"
+#include <gtest/gtest.h>
 
-#include "../AlgebraicPageRank.h"
-#include "../../../io/SNAPGraphReader.h"
-#include "../../CSRMatrix.h"
-#include "../../../auxiliary/Timer.h"
+#include "../../../../include/networkit/algebraic/algorithms/AlgebraicPageRank.hpp"
+#include "../../../../include/networkit/io/SNAPGraphReader.hpp"
+#include "../../../../include/networkit/algebraic/CSRMatrix.hpp"
+#include "../../../../include/networkit/auxiliary/Timer.hpp"
 
-#include "../../../centrality/PageRank.h"
+#include "../../../../include/networkit/centrality/PageRank.hpp"
 
 namespace NetworKit {
+
+class AlgebraicPageRankGTest : public testing::Test {};
 
 TEST(AlgebraicPageRankGTest, testPageRankDirected) {
 	SNAPGraphReader reader;
@@ -37,7 +39,7 @@ TEST(AlgebraicPageRankGTest, testPageRankDirected) {
 	EXPECT_EQ(pr_ranking[0].first, 699u);
 	EXPECT_NEAR(pr_ranking[0].second, 0.00432, tol);
 
-	t.start();
+	/*t.start();
 	PageRank pr(G);
 	t.stop();
 	INFO("Initilaizing graph-theoretic PageRank took ", t.elapsedMicroseconds() / 1000.0);
@@ -46,7 +48,7 @@ TEST(AlgebraicPageRankGTest, testPageRankDirected) {
 	pr.run();
 	t.stop();
 
-	INFO("Computing graph-theoretic page rank took ", t.elapsedMicroseconds() / 1000.0);
+	INFO("Computing graph-theoretic page rank took ", t.elapsedMicroseconds() / 1000.0);*/
 }
 
 TEST(AlgebraicPageRankGTest, testPageRankCentrality) {

@@ -6,9 +6,9 @@
  */
 
 
-#include "CommuteTimeDistance.h"
-#include "../auxiliary/Log.h"
-#include "../auxiliary/Timer.h"
+#include "../../include/networkit/distance/CommuteTimeDistance.hpp"
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/Timer.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -32,6 +32,7 @@ CommuteTimeDistance::CommuteTimeDistance(const Graph& G, double tol): Algorithm(
 	setupTime = t.elapsedMilliseconds();
 
 	DEBUG("done setting up commute time distance");
+	hasRun = false;
 }
 
 void CommuteTimeDistance::run() {
@@ -128,7 +129,7 @@ void CommuteTimeDistance::runParallelApproximation() {
 
 	INFO("Number k of iterations: ", k);
 #pragma omp parallel for
-	for (index i = 0; i < k; ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(k); ++i) {
 		// rhs(v) = \sum_e=1 ^m q(e) * B(e, v)
 		//        = +/- q(e)
 		G.forEdges([&](node u, node v) {
@@ -153,7 +154,7 @@ void CommuteTimeDistance::runParallelApproximation() {
 }
 
 double CommuteTimeDistance::distance(node u, node v) {
-	if (!hasRun) throw std::runtime_error("Call run method first");
+	assureFinished();
 
 	// compute volume
 	double volG = 0.0;

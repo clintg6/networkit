@@ -7,12 +7,12 @@
 
 #include <numeric>
 
-#include "Diameter.h"
-#include "Eccentricity.h"
-#include "../distance/BFS.h"
-#include "../distance/Dijkstra.h"
-#include "../components/ConnectedComponents.h"
-#include "../structures/Partition.h"
+#include "../../include/networkit/distance/Diameter.hpp"
+#include "../../include/networkit/distance/Eccentricity.hpp"
+#include "../../include/networkit/distance/BFS.hpp"
+#include "../../include/networkit/distance/Dijkstra.hpp"
+#include "../../include/networkit/components/ConnectedComponents.hpp"
+#include "../../include/networkit/structures/Partition.hpp"
 
 namespace NetworKit {
 
@@ -78,7 +78,7 @@ edgeweight Diameter::exactDiameter(const Graph& G) {
 	return diameter;
 }
 
-std::pair<edgeweight, edgeweight> Diameter::estimatedDiameterRange(const NetworKit::Graph &G, double error) {
+std::pair<edgeweight, edgeweight> Diameter::estimatedDiameterRange(const Graph &G, double error) {
 	if (G.isDirected() || G.isWeighted()) {
 		throw std::runtime_error("Error, the diameter of directed or weighted graphs cannot be computed yet.");
 	}
@@ -256,7 +256,7 @@ edgeweight Diameter::estimatedVertexDiameter(const Graph& G, count samples) {
 
 	edgeweight vdMax = 0;
 	#pragma omp parallel for
-	for (count i = 0; i < samples; ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(samples); ++i) {
 		node u = G.randomNode();
 		edgeweight vd = estimateFrom(u);
 		DEBUG("sampled vertex diameter from node ", u, ": ", vd);

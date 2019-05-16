@@ -5,9 +5,12 @@
  *      Author: Kolja Esders (kolja.esders@student.kit.edu)
  */
 
-#include "EvaluationMetric.h"
-#include "PredictionsSorter.h"
-#include "../auxiliary/Parallel.h"
+#include <algorithm>
+#include <numeric>
+
+#include "../../include/networkit/linkprediction/EvaluationMetric.hpp"
+#include "../../include/networkit/linkprediction/PredictionsSorter.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
@@ -148,7 +151,7 @@ void EvaluationMetric::setTrueAndFalseNegatives() {
 void EvaluationMetric::setPositivesAndNegatives() {
   numPositives = 0;
   #pragma omp parallel for
-  for (index i = 0; i < predictions.size(); ++i) {
+  for (omp_index i = 0; i < static_cast<omp_index>(predictions.size()); ++i) {
     if (testGraph->hasEdge(predictions[i].first.first, predictions[i].first.second)) {
       #pragma omp atomic
       numPositives++;

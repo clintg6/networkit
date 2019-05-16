@@ -8,7 +8,7 @@
 #include <cmath>
 #include <stack>
 
-#include "BiconnectedComponents.h"
+#include "../../include/networkit/components/BiconnectedComponents.hpp"
 
 namespace NetworKit {
 
@@ -60,7 +60,7 @@ void BiconnectedComponents::run() {
 
       bool allVisited = true;
 
-      for (node neighbor : G.neighbors(u)) {
+      for (node neighbor : G.neighborRange(u)) {
         if (!visited[neighbor]) {
           allVisited = false;
           visit(neighbor);
@@ -94,8 +94,8 @@ void BiconnectedComponents::run() {
 
           for (auto rit = edgeStack.rbegin(); rit != edgeStack.rend(); ++rit) {
             if ((*rit).first == v && (*rit).second == u) {
-              edgeStack.erase(std::next(rit).base());
               newComponent(*rit);
+              edgeStack.erase(std::next(rit).base());
               break;
             }
           }

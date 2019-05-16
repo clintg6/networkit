@@ -5,7 +5,7 @@
  *      Author: Gerd Lindner
  */
 
-#include "EdgeScore.h"
+#include "../../include/networkit/edgescores/EdgeScore.hpp"
 
 namespace NetworKit {
 
@@ -28,9 +28,7 @@ namespace NetworKit {
 	*/
 	template<typename T>
 	std::vector<T> EdgeScore<T>::scores() const {
-		if (!hasRun) {
-			throw std::runtime_error("Call run method first");
-		}
+		assureFinished();
 		return scoreData;
 	}
 
@@ -38,9 +36,7 @@ namespace NetworKit {
 	*/
 	template<typename T>
 	T EdgeScore<T>::score(edgeid eid) {
-		if (!hasRun) {
-			throw std::runtime_error("Call run method first");
-		}
+		assureFinished();
 		return scoreData[eid];
 	};
 

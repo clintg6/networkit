@@ -5,7 +5,7 @@
  *      Author: Christian Staudt (christian.staudt@kit.edu)
  */
 
-#include "GraphCoarsening.h"
+#include "../../include/networkit/coarsening/GraphCoarsening.hpp"
 
 namespace NetworKit {
 
@@ -29,9 +29,7 @@ std::vector<node> GraphCoarsening::getFineToCoarseNodeMapping() const {
 
 
 std::map<node, std::vector<node> > GraphCoarsening::getCoarseToFineNodeMapping() const {
-	if (!hasRun) {
-		throw std::runtime_error("Call run()-method first.");
-	}
+	assureFinished();
 
 	std::map<node, std::vector<node>> reverseMap;
 	Gcoarsened.forNodes([&](node v_){

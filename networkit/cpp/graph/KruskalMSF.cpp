@@ -5,10 +5,10 @@
  *      Author: Henning
  */
 
-#include "KruskalMSF.h"
-#include "SpanningForest.h"
-#include "../structures/UnionFind.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/graph/KruskalMSF.hpp"
+#include "../../include/networkit/graph/SpanningForest.hpp"
+#include "../../include/networkit/structures/UnionFind.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
@@ -35,11 +35,11 @@ struct MyEdge {
 };
 
 
-NetworKit::KruskalMSF::KruskalMSF(const Graph& G): SpanningForest(G) {
+KruskalMSF::KruskalMSF(const Graph& G): SpanningForest(G) {
 
 }
 
-void NetworKit::KruskalMSF::run() {
+void KruskalMSF::run() {
 	if (true || G.isWeighted()) { // FIXME: remove true when SpanningForest is fixed!
 		count z = G.upperNodeIdBound();
 		forest = G.copyNodes();

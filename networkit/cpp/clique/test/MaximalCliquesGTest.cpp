@@ -1,15 +1,15 @@
-#include "MaximalCliquesGTest.h"
+#include <gtest/gtest.h>
 
-#include "../MaximalCliques.h"
-#include "../../graph/Graph.h"
-#include "../../io/METISGraphReader.h"
-#include "../../io/EdgeListReader.h"
-#include "../../auxiliary/Log.h"
-#include "../../auxiliary/Timer.h"
-
-#ifndef NOGTEST
+#include "../../../include/networkit/clique/MaximalCliques.hpp"
+#include "../../../include/networkit/graph/Graph.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
+#include "../../../include/networkit/io/EdgeListReader.hpp"
+#include "../../../include/networkit/auxiliary/Log.hpp"
+#include "../../../include/networkit/auxiliary/Timer.hpp"
 
 namespace NetworKit {
+
+class MaximalCliquesGTest: public testing::Test {};
 
 TEST_F(MaximalCliquesGTest, testMaximalCliques) {
 
@@ -17,7 +17,8 @@ TEST_F(MaximalCliquesGTest, testMaximalCliques) {
 	Graph G = reader.read("input/hep-th.graph");
 
 	node seed = 2;
-	auto sn = G.neighbors(seed);
+	std::vector<node> sn(G.neighborRange(seed).begin(),
+						 G.neighborRange(seed).end());
 	auto sneighbors = std::unordered_set<node>(sn.begin(), sn.end());
 	sneighbors.insert(seed);
 	auto subG = G.subgraphFromNodes(sneighbors);
@@ -157,6 +158,5 @@ TEST_F(MaximalCliquesGTest, benchMaximalCliques) {
 		INFO("Just finding the maximum clique needed ", timer.elapsedMilliseconds(), "ms");
 	}
 }
-}
 
-#endif /* NOGTEST */
+}

@@ -5,13 +5,13 @@
  *      Author: Kolja Esders (kolja.esders@student.kit.edu)
  */
 
-#include "NeighborhoodUtility.h"
+#include "../../include/networkit/linkprediction/NeighborhoodUtility.hpp"
 
 namespace NetworKit {
 
 std::pair<std::vector<node>, std::vector<node>> NeighborhoodUtility::getSortedNeighborhoods(const Graph& G, node u, node v) {
-  std::vector<node> uNeighbors = G.neighbors(u);
-  std::vector<node> vNeighbors = G.neighbors(v);
+  std::vector<node> uNeighbors(G.neighborRange(u).begin(), G.neighborRange(u).end());
+  std::vector<node> vNeighbors(G.neighborRange(v).begin(), G.neighborRange(v).end());
   // We have no guarantee that the neighbor-vectors are sorted so we have to
   // sort them in order for set-functions to work properly.
   std::sort(uNeighbors.begin(), uNeighbors.end());

@@ -5,7 +5,7 @@
  *      Author: Michael Wegner (michael.wegner@student.kit.edu)
  */
 
-#include "DynamicMatrix.h"
+#include "../../include/networkit/algebraic/DynamicMatrix.hpp"
 
 namespace NetworKit {
 
@@ -78,7 +78,7 @@ Vector DynamicMatrix::column(const index j) const {
 
 	Vector column(numberOfRows());
 #pragma omp parallel for
-	for (node i = 0; i < numberOfRows(); ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(numberOfRows()); ++i) {
 		double val = graph.weight(i,j);
 		column[i] = (val == nullWeight? zero : val);
 	}

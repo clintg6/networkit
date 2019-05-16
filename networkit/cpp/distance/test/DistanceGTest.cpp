@@ -4,23 +4,23 @@
  *  Created on: Sep 04, 2015
  *      Author: Maximilian Vogel
  */
-#ifndef NOGTEST
 
-#include "DistanceGTest.h"
+#include <gtest/gtest.h>
 
-#include "../Diameter.h"
-#include "../EffectiveDiameter.h"
-#include "../EffectiveDiameterApproximation.h"
-#include "../HopPlotApproximation.h"
-#include "../NeighborhoodFunction.h"
-#include "../NeighborhoodFunctionApproximation.h"
-#include "../NeighborhoodFunctionHeuristic.h"
+#include "../../../include/networkit/distance/Diameter.hpp"
+#include "../../../include/networkit/distance/EffectiveDiameter.hpp"
+#include "../../../include/networkit/distance/EffectiveDiameterApproximation.hpp"
+#include "../../../include/networkit/distance/HopPlotApproximation.hpp"
+#include "../../../include/networkit/distance/NeighborhoodFunction.hpp"
+#include "../../../include/networkit/distance/NeighborhoodFunctionApproximation.hpp"
+#include "../../../include/networkit/distance/NeighborhoodFunctionHeuristic.hpp"
 
-#include "../../generators/DorogovtsevMendesGenerator.h"
-#include "../../generators/ErdosRenyiGenerator.h"
-#include "../../io/METISGraphReader.h"
+#include "../../../include/networkit/generators/DorogovtsevMendesGenerator.hpp"
+#include "../../../include/networkit/generators/ErdosRenyiGenerator.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
 
 namespace NetworKit {
+class DistanceGTest: public testing::Test {};
 
 TEST_F(DistanceGTest, testVertexDiameterPedantically) {
 	DorogovtsevMendesGenerator generator(1000);
@@ -33,7 +33,6 @@ TEST_F(DistanceGTest, testVertexDiameterPedantically) {
 }
 
 TEST_F(DistanceGTest, testExactDiameter) {
-
 	using namespace std;
 
 	vector<pair<string, count>> testInstances= {pair<string, count>("lesmis", 14),
@@ -53,7 +52,6 @@ TEST_F(DistanceGTest, testExactDiameter) {
 
 
 TEST_F(DistanceGTest, testEstimatedDiameterRange) {
-
 	using namespace std;
 
    vector<pair<string, count>> testInstances= {
@@ -239,7 +237,7 @@ TEST_F(DistanceGTest, testEffectiveDiameterExact) {
 TEST_F(DistanceGTest, testHopPlotApproximation) {
 	using namespace std;
 
-	vector<string> testInstances= {"celegans_metabolic", "power", "lesmis"};
+	vector<string> testInstances= {"celegans_metabolic", "lesmis"};
 
 	const double tol = 1e-2;
 
@@ -280,5 +278,3 @@ TEST_F(DistanceGTest, testNeighborhoodFunctionHeuristic) {
 }
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

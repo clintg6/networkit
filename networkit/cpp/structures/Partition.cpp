@@ -5,8 +5,11 @@
  *      Author: cls
  */
 
-#include "Partition.h"
+#include "../../include/networkit/structures/Partition.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
+#include <algorithm>
 #include <atomic>
+#include <memory>
 
 namespace NetworKit {
 
@@ -69,7 +72,7 @@ bool Partition::isOnePartition(Graph& G) { //FIXME what for is elements needed? 
 
 count Partition::numberOfSubsets() const {
 	auto n = upperBound();
-	std::vector<std::atomic<bool>> exists(n); // a boolean vector would not be thread-safe
+	std::unique_ptr<std::atomic<bool>[]> exists(new std::atomic<bool>[n]{}); // a boolean vector would not be thread-safe
 	this->parallelForEntries([&](index e, index s) {
 		if (s != none) {
 			exists[s] = true;
@@ -77,7 +80,7 @@ count Partition::numberOfSubsets() const {
 	});
 	count k = 0; // number of actually existing clusters
 	#pragma omp parallel for reduction(+:k)
-	for (index i = 0; i < n; ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(n); ++i) {
 		if (exists[i]) {
 			k++;
 		}
@@ -88,16 +91,15 @@ count Partition::numberOfSubsets() const {
 void Partition::compact(bool useTurbo) {
 	index i = 0;
 	if (!useTurbo) {
-		std::map<index, index> compactingMap; // first index is the old partition index, "value" is the index of the compacted index
-		this->forEntries([&](index e, index s){ // get assigned SubsetIDs and create a map with new IDs
-			if (s!= none) {
-				auto result = compactingMap.insert(std::make_pair(s,i));
-				if (result.second) ++i;
-			}
-		});
+		std::vector<index> usedIds(data);
+		Aux::Parallel::sort(usedIds.begin(), usedIds.end());
+		auto last = std::unique(usedIds.begin(), usedIds.end());
+		usedIds.erase(last, usedIds.end());
+		i = usedIds.size();
+
 		this->parallelForEntries([&](index e, index s){ // replace old SubsetIDs with the new IDs
 			if (s != none) {
-				data[e] = compactingMap[s];
+				data[e] = std::distance(usedIds.begin(), std::lower_bound(usedIds.begin(), usedIds.end(), s));
 			}
 		});
 	} else {

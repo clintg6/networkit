@@ -11,15 +11,14 @@
 #include <queue>
 #include <stack>
 
-#include "../auxiliary/Log.h"
-#include "../auxiliary/PrioQueue.h"
-#include "../auxiliary/PrioQueueForInts.h"
-#include "../components/ConnectedComponents.h"
-#include "../components/StronglyConnectedComponents.h"
-#include "../distance/BFS.h"
-#include "../distance/Dijkstra.h"
-#include "../distance/SSSP.h"
-#include "TopCloseness.h"
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/PrioQueue.hpp"
+#include "../../include/networkit/components/ConnectedComponents.hpp"
+#include "../../include/networkit/components/StronglyConnectedComponents.hpp"
+#include "../../include/networkit/distance/BFS.hpp"
+#include "../../include/networkit/distance/Dijkstra.hpp"
+#include "../../include/networkit/distance/SSSP.hpp"
+#include "../../include/networkit/centrality/TopCloseness.hpp"
 
 namespace NetworKit {
 
@@ -319,7 +318,7 @@ void TopCloseness::BFSbound(node x, std::vector<double> &S2, count *visEdges,
   }
   // DEBUG("level_bound = ", level_bound);
   // now we compute it for the other levels
-  for (count i = 2; i <= nLevs; i++) {
+  for (omp_index i = 2; i <= static_cast<omp_index>(nLevs); i++) {
     if (!G.isDirected() && i > 2) {
       level_bound += sumLevs[i - 3];
     }

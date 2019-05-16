@@ -5,12 +5,12 @@
  *      Author: Gerd Lindner
  */
 
-#include "ForestFireScore.h"
+#include "../../include/networkit/sparsification/ForestFireScore.hpp"
 #include <limits>
 #include <set>
 #include <queue>
-#include "../auxiliary/Log.h"
-#include "../auxiliary/Parallel.h"
+#include "../../include/networkit/auxiliary/Log.hpp"
+#include "../../include/networkit/auxiliary/Parallel.hpp"
 
 namespace NetworKit {
 
@@ -60,7 +60,7 @@ void ForestFireScore::run() {
 					edgeid eid;
 					std::tie(x, eid) = validNeighbors[index];
 					activeNodes.push(x);
-					#pragma omp atomic update
+					#pragma omp atomic
 					burnt[eid]++;
 					localEdgesBurnt++;
 					visited[x] = true;
@@ -71,7 +71,7 @@ void ForestFireScore::run() {
 			}
 		}
 
-		#pragma omp atomic update
+		#pragma omp atomic
 		edgesBurnt += localEdgesBurnt;
 	}
 
@@ -80,7 +80,7 @@ void ForestFireScore::run() {
 
 	if (maxv > 0) {
 		#pragma omp parallel for
-		for (index i = 0; i < burnt.size(); ++i) {
+		for (omp_index i = 0; i < static_cast<omp_index>(burnt.size()); ++i) {
 			burntNormalized[i] = burnt[i] / maxv;
 		}
 	}

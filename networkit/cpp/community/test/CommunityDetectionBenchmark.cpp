@@ -5,27 +5,34 @@
  *      Author: Klara Reichard (klara.reichard@gmail.com), Marvin Ritter (marvin.ritter@gmail.com)
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
 #include <map>
 #include <functional>
 
-#include "CommunityDetectionBenchmark.h"
-#include "../PLP.h"
-#include "../PLM.h"
-#include "../Modularity.h"
-#include "../../centrality/Betweenness.h"
-#include "../../centrality/PageRank.h"
-#include "../../auxiliary/Timer.h"
-#include "../../structures/Partition.h"
+#include "../../../include/networkit/community/PLP.hpp"
+#include "../../../include/networkit/community/PLM.hpp"
+#include "../../../include/networkit/community/Modularity.hpp"
+#include "../../../include/networkit/centrality/Betweenness.hpp"
+#include "../../../include/networkit/centrality/PageRank.hpp"
+#include "../../../include/networkit/auxiliary/Timer.hpp"
+#include "../../../include/networkit/structures/Partition.hpp"
+
+#include "../../../include/networkit/graph/Graph.hpp"
+#include "../../../include/networkit/io/METISGraphReader.hpp"
 
 namespace NetworKit {
 
+class CommunityDetectionBenchmark: public testing::Test {
+public:
+	virtual ~CommunityDetectionBenchmark() = default;
+
+protected:
+	METISGraphReader metisReader;
+
+};
+
 constexpr int runs = 12;
-
-void CommunityDetectionBenchmark::SetUp() {
-
-}
 
 TEST_F(CommunityDetectionBenchmark, benchClusteringAlgos) {
 	Aux::Timer timer;
@@ -130,4 +137,3 @@ const Graph G = this->metisReader.read(graph);
 
 } /* namespace NetworKit */
 
-#endif /*NOGTEST */

@@ -5,7 +5,7 @@
  *      Author: Henning
  */
 
-#include "BucketPQ.h"
+#include "../../include/networkit/auxiliary/BucketPQ.hpp"
 
 namespace Aux {
 
@@ -116,4 +116,8 @@ uint64_t BucketPQ::size() const {
 	return numElems;
 }
 
+int BucketPQ::getKey(const index& val) {
+	int key =myBucket[val]-offset;
+	return key;
+}
 } // namespace
