@@ -9,7 +9,6 @@
 #define COREDECOMPOSITION_H_
 
 #include <vector>
-#include <fstream>
 #include <string>
 #include <list>
 #include "../graph/Graph.h"
@@ -24,7 +23,7 @@ namespace NetworKit {
  * @ingroup centrality
  * Computes k-core decomposition of a graph.
  */
-class CoreDecomposition : public NetworKit::Centrality  {
+class CoreDecomposition : public Centrality  {
 
 public:
 

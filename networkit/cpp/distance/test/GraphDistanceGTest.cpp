@@ -5,25 +5,20 @@
  *      Author: Henning Meyerhenke (meyerhenke@kit.edu)
  */
 
+#include <gtest/gtest.h>
 
-#ifndef NOGTEST
-
-#include "GraphDistanceGTest.h"
+#include "../GraphDistance.h"
+#include "../../graph/Graph.h"
+#include "../../io/METISGraphReader.h"
 
 namespace NetworKit {
 
-GraphDistanceGTest::GraphDistanceGTest() {
-
-}
-
-GraphDistanceGTest::~GraphDistanceGTest() {
-
-}
+class GraphDistanceGTest: public testing::Test{};
 
 // TODO: fix graph
 TEST_F(GraphDistanceGTest, testGraphWeightedDistance) {
 	METISGraphReader reader;
-	Graph g = reader.read("input/mapping/grid-5x5-dist-arch.graph");
+	Graph g = reader.read("input/grid-5x5-dist-arch.graph");
 
 	GraphDistance gd;
 
@@ -44,7 +39,7 @@ TEST_F(GraphDistanceGTest, testGraphWeightedDistance) {
 
 TEST_F(GraphDistanceGTest, testGraphUnweightedDistance) {
 	METISGraphReader reader;
-	Graph g = reader.read("input/mapping/grid-5x5-dist-arch.graph");
+	Graph g = reader.read("input/grid-5x5-dist-arch.graph");
 
 	GraphDistance gd;
 
@@ -65,5 +60,3 @@ TEST_F(GraphDistanceGTest, testGraphUnweightedDistance) {
 
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

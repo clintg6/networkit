@@ -7,16 +7,13 @@
 
 #include <iostream>
 
-#include "PartitionGTest.h"
+#include <gtest/gtest.h>
 
 #include "../Partition.h"
 
-#ifndef NOGTEST
-
 namespace NetworKit {
 
-/*TEST_F(PartitionGTest, test*) {
-}*/
+class PartitionGTest: public testing::Test {};
 
 TEST_F(PartitionGTest, testConstructor) {
 	Partition p(10);
@@ -225,10 +222,22 @@ TEST_F(PartitionGTest, testCompact) {
 	EXPECT_EQ(5u, p.upperBound()); // This is only a weak test
 
 	// the following is a deeper test that checks if partition ids and structures match
-	std::vector<index> controlSet = {0,0,0,1,2,3,4,0,0,0};
-	p.forEntries([&](index e,index s){
-		EXPECT_EQ(controlSet[e],s);
-	});
+	EXPECT_EQ(p[0], p[1]);
+	EXPECT_EQ(p[0], p[2]);
+	EXPECT_NE(p[0], p[3]);
+	EXPECT_NE(p[0], p[4]);
+	EXPECT_NE(p[0], p[5]);
+	EXPECT_NE(p[0], p[6]);
+	EXPECT_NE(p[3], p[4]);
+	EXPECT_NE(p[3], p[5]);
+	EXPECT_NE(p[3], p[6]);
+	EXPECT_NE(p[4], p[5]);
+	EXPECT_NE(p[4], p[6]);
+	EXPECT_NE(p[5], p[6]);
+	EXPECT_NE(p[6], p[7]);
+	EXPECT_EQ(p[0], p[7]);
+	EXPECT_EQ(p[0], p[8]);
+	EXPECT_EQ(p[0], p[9]);
 }
 
 
@@ -296,5 +305,3 @@ TEST_F(PartitionGTest, testNumberOfElements) {
 
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

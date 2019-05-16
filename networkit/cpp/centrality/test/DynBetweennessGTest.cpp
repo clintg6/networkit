@@ -5,7 +5,8 @@
  *      Author: ebergamini, cls
  */
 
-#include "DynBetweennessGTest.h"
+#include <gtest/gtest.h>
+
 #include "../Betweenness.h"
 #include "../DynApproxBetweenness.h"
 #include "../ApproxBetweenness.h"
@@ -18,9 +19,9 @@
 
 namespace NetworKit {
 
+class DynBetweennessGTest: public testing::Test {};
 
-
-TEST_F(DynBetweennessGTest, testDynApproxBetweennessSmallGraph) {
+TEST_F(DynBetweennessGTest, runDynApproxBetweennessSmallGraph) {
 /* Graph:
 0    3   6
 	\  / \ /
@@ -40,7 +41,8 @@ TEST_F(DynBetweennessGTest, testDynApproxBetweennessSmallGraph) {
 	G.addEdge(5, 6);
 	G.addEdge(5, 7);
 
-	double epsilon = 0.01; // error
+	//double epsilon = 0.01; // error
+	double epsilon = 0.1; // error
 	double delta = 0.1; // confidence
 	DynApproxBetweenness dynbc(G, epsilon, delta);
 	Betweenness bc(G);
@@ -65,20 +67,21 @@ TEST_F(DynBetweennessGTest, testDynApproxBetweennessSmallGraph) {
 }
 
 
-TEST_F(DynBetweennessGTest, testDynVsStatic) {
+TEST_F(DynBetweennessGTest, runDynVsStatic) {
 	METISGraphReader reader;
-	Graph G = reader.read("input/PGPgiantcompo.graph");
+	//Graph G = reader.read("input/PGPgiantcompo.graph");
+	Graph G = reader.read("input/celegans_metabolic.graph");
 	count n = G.upperNodeIdBound();
 
 	double epsilon = 0.1; // error
 	double delta = 0.1; // confidence
-	INFO("Initializing DynApproxBetweenness");
+	DEBUG("Initializing DynApproxBetweenness");
 	DynApproxBetweenness dynbc(G, epsilon, delta, false);
-	INFO("Initializing ApproxBetweenness");
+	DEBUG("Initializing ApproxBetweenness");
 	ApproxBetweenness bc(G, epsilon, delta);
-	INFO("Running DynApproxBetweenness");
+	DEBUG("Running DynApproxBetweenness");
 	dynbc.run();
-	INFO("Running ApproxBetweenness");
+	DEBUG("Running ApproxBetweenness");
 	bc.run();
 	std::vector<double> dynbc_scores = dynbc.scores();
 	std::vector<double> bc_scores = bc.scores();
@@ -100,13 +103,13 @@ TEST_F(DynBetweennessGTest, testDynVsStatic) {
 			i++;
 		}
 	}
-	INFO("Running ApproxBetweenness (again)");
+	DEBUG("Running ApproxBetweenness (again)");
 	bc.run();
-	INFO("Updating DynApproxBetweenness");
+	DEBUG("Updating DynApproxBetweenness");
 	dynbc.updateBatch(batch);
-	INFO("Calling DynApproxBetweenness Scores");
+	DEBUG("Calling DynApproxBetweenness Scores");
 	dynbc_scores = dynbc.scores();
-	INFO("Calling ApproxBetweenness Scores");
+	DEBUG("Calling ApproxBetweenness Scores");
 	bc_scores = bc.scores();
 	err1 = 0;
 	for(count i=0; i<n; i++) {
@@ -115,13 +118,12 @@ TEST_F(DynBetweennessGTest, testDynVsStatic) {
 			err1 = x;
 	}
 	DEBUG("After the edge insertion: ");
-
 }
 
 
-TEST_F(DynBetweennessGTest, testApproxBetweenness) {
-	METISGraphReader reader;
-	DorogovtsevMendesGenerator generator(1000);
+TEST_F(DynBetweennessGTest, runApproxBetweenness) {
+	//METISGraphReader reader;
+	DorogovtsevMendesGenerator generator(100);
 	Graph G1 = generator.generate();
 	Graph G(G1, true, false);
 	ApproxBetweenness bc(G, 0.1, 0.1);

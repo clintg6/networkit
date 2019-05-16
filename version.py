@@ -1,8 +1,8 @@
 name='networkit'
 
-version='4.5'
+version='5.0'
 
-url='https://networkit.iti.kit.edu/'
+url='https://networkit.github.io/'
 
 download_url='https://pypi.python.org/pypi/networkit'
 
@@ -52,8 +52,12 @@ classifiers = [
 'Topic :: Scientific/Engineering :: Mathematics',
 ]
 
-install_requires = []
-# not used because it can mess up pip's installation process
-# therefore, setup.py prints installs the missing packages (tabulate, readline, scipy, numpy, matplotlib, networkx, cython)
-# If gcc is missing, the installation is stopped.
-# In case scons is missing, the installation continues the build within the mbe.MinimalBuildEnvironment.
+install_requires = [
+	'scipy',
+	'matplotlib',
+	'pandas',
+	'numpy',
+	'networkx',
+	'tabulate',
+	'ipython'
+]

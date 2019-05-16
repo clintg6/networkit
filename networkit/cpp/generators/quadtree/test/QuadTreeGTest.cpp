@@ -9,7 +9,11 @@
 #include <cmath>
 #include <algorithm>
 
-#include "QuadTreeGTest.h"
+#include <gtest/gtest.h>
+#include <cmath>
+#include <vector>
+#include "../Quadtree.h"
+
 #include "../../../auxiliary/Random.h"
 #include "../../../auxiliary/Log.h"
 #include "../../../geometric/HyperbolicSpace.h"
@@ -18,6 +22,20 @@
 #include "../QuadtreePolarEuclid.h"
 
 namespace NetworKit {
+
+class QuadTreeGTest: public testing::Test {
+protected:
+	template <class T>
+	QuadNode<T> getRoot(Quadtree<T> &tree) {
+		return tree.root;
+	}
+
+	template <class T>
+	vector<QuadNode<T> > getChildren(QuadNode<T> &node) {
+		return node.children;
+	}
+};
+
 
 /**
  * Test whether the elements returned by a quadtree range query are indeed those whose hyperbolic distance to the query point is below a threshold
@@ -38,7 +56,7 @@ TEST_F(QuadTreeGTest, testQuadTreeHyperbolicCircle) {
 
 	for (index i = 0; i < n; i++) {
 		EXPECT_GE(angles[i], 0);
-		EXPECT_LT(angles[i], 2*M_PI);
+		EXPECT_LT(angles[i], 2*PI);
 		EXPECT_GE(radii[i], 0);
 		EXPECT_LT(radii[i], R);
 		TRACE("Added (", angles[i], ",", radii[i], ")");
@@ -131,7 +149,7 @@ TEST_F(QuadTreeGTest, testQuadTreeThresholdGrowth) {
 
 	for (index i = 0; i < n; i++) {
 		EXPECT_GE(angles[i], 0);
-		EXPECT_LT(angles[i], 2*M_PI);
+		EXPECT_LT(angles[i], 2*PI);
 		EXPECT_GE(radii[i], 0);
 		EXPECT_LT(radii[i], R);
 		TRACE("Added (", angles[i], ",", radii[i], ")");
@@ -188,7 +206,7 @@ TEST_F(QuadTreeGTest, testQuadTreeDeletion) {
 
 	for (index i = 0; i < n; i++) {
 		EXPECT_GE(angles[i], 0);
-		EXPECT_LT(angles[i], 2*M_PI);
+		EXPECT_LT(angles[i], 2*PI);
 		EXPECT_GE(radii[i], 0);
 		EXPECT_LT(radii[i], R);
 		TRACE("Added (", angles[i], ",", radii[i], ")");
@@ -228,6 +246,11 @@ TEST_F(QuadTreeGTest, testQuadTreeDeletion) {
  * Test whether the points found by a Euclidean range query on the quadtree root are exactly those whose Euclidean distance to the query point is smaller than the threshold.
  */
 TEST_F(QuadTreeGTest, testEuclideanCircle) {
+	// In Windows this test randomly timeouts. We temporarily address this issue
+	// by fixing a random seed. However, this test should not depend on the
+	// random seed.
+	// TODO: debug this test on Windows.
+	Aux::Random::setSeed(1, false);
 	count n = 1000;
 	double R = 1;
 	double r = HyperbolicSpace::hyperbolicRadiusToEuclidean(R);
@@ -247,7 +270,7 @@ TEST_F(QuadTreeGTest, testEuclideanCircle) {
 
 	for (index i = 0; i < n; i++) {
 		EXPECT_GE(angles[i], 0);
-		EXPECT_LT(angles[i], 2*M_PI);
+		EXPECT_LT(angles[i], 2*PI);
 		EXPECT_GE(radii[i], 0);
 		EXPECT_LT(radii[i], R);
 		TRACE("Added (", angles[i], ",", radii[i], ")");
@@ -268,7 +291,7 @@ TEST_F(QuadTreeGTest, testEuclideanCircle) {
 			maxR = std::max(abs(minR), maxR);
 			minR = 0;
 			minPhi = 0;
-			maxPhi = 2*M_PI;
+			maxPhi = 2*PI;
 		} else {
 			spread = asin(radius / query.length());
 			HyperbolicSpace::cartesianToPolar(query, phi_c, r_c);
@@ -287,10 +310,10 @@ TEST_F(QuadTreeGTest, testEuclideanCircle) {
 
 		root.getElementsInEuclideanCircle(query, radius, circleDenizens, minPhi, maxPhi, minR, maxR);
 		if (minPhi < 0) {
-			root.getElementsInEuclideanCircle(query, radius, circleDenizens, 2*M_PI+minPhi, 2*M_PI, minR, maxR);
+			root.getElementsInEuclideanCircle(query, radius, circleDenizens, 2*PI+minPhi, 2*PI, minR, maxR);
 		}
-		if (maxPhi > 2*M_PI) {
-			root.getElementsInEuclideanCircle(query, radius, circleDenizens, 0, maxPhi - 2*M_PI, minR, maxR);
+		if (maxPhi > 2*PI) {
+			root.getElementsInEuclideanCircle(query, radius, circleDenizens, 0, maxPhi - 2*PI, minR, maxR);
 		}
 
 		//check whether bounds were correct by calling again without bounds and comparing
@@ -345,7 +368,7 @@ TEST_F(QuadTreeGTest, testQuadTreeBalance) {
 
 	for (index i = 0; i < n; i++) {
 		EXPECT_GE(angles[i], 0);
-		EXPECT_LT(angles[i], 2*M_PI);
+		EXPECT_LT(angles[i], 2*PI);
 		EXPECT_GE(radii[i], 0);
 		EXPECT_LT(radii[i], R);
 		TRACE("Added (", angles[i], ",", radii[i], ")");
@@ -395,7 +418,7 @@ TEST_F(QuadTreeGTest, testQuadTreeBalance) {
 }
 
 TEST_F(QuadTreeGTest, testSequentialQuadTreeConstruction) {
-	count n = 1000000;
+	count n = 100000;
 	count capacity = 1000;
 	double alpha = 1;
 	double R = HyperbolicSpace::hyperbolicAreaToRadius(n);
@@ -425,10 +448,10 @@ TEST_F(QuadTreeGTest, testSequentialQuadTreeConstruction) {
 
 TEST_F(QuadTreeGTest, testProbabilisticQuery) {
 	Aux::Random::setSeed(0, false);
-	count n = 10000;
+	count n = 5000;
 	count m = n*3;
 	count capacity = 20;
-	double R = 2*log(8*n / (M_PI*(m/n)*2));
+	double R = 2*log(8*n / (PI*(m/n)*2));
 	double r = HyperbolicSpace::hyperbolicRadiusToEuclidean(R);
 	double alpha = 1;
 
@@ -525,7 +548,7 @@ TEST_F(QuadTreeGTest, testLeftSuppression) {
 	/**
 	 * define parameters
 	 */
-	count n = 100000;
+	count n = 10000;
 	double k = 10;
 	count m = n*k/2;
 	double targetR = HyperbolicSpace::getTargetRadius(n, m);
@@ -568,7 +591,7 @@ TEST_F(QuadTreeGTest, testLeftSuppression) {
 	}
 }
 
-TEST_F(QuadTreeGTest, tryTreeExport) {
+TEST_F(QuadTreeGTest, debugTreeExport) {
 	count n = 200;
 	count capacity = 40;
 	double k = 10;
@@ -600,7 +623,7 @@ TEST_F(QuadTreeGTest, tryTreeExport) {
 
 	count treeheight = quad.height();
 	DEBUG("Quadtree height: ", treeheight);
-	auto deg = [](double rad) -> double {return 180*rad/M_PI;};
+	auto deg = [](double rad) -> double {return 180*rad/PI;};
 
 
 	index query = Aux::Random::integer(n-1);
@@ -669,7 +692,7 @@ TEST_F(QuadTreeGTest, testPolarEuclidQuery) {
 	vector<index> content(n);
 
 	double minPhi = 0;
-	double maxPhi = 2*M_PI;
+	double maxPhi = 2*PI;
 	double minR = 0;
 
 	/**
@@ -727,7 +750,7 @@ TEST_F(QuadTreeGTest, testQuadTreePolarEuclidInsertion) {
 	vector<index> content(n);
 
 	double minPhi = 0;
-	double maxPhi = 2*M_PI;
+	double maxPhi = 2*PI;
 	double minR = 0;
 
 	/**

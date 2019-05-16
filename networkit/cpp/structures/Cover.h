@@ -199,6 +199,11 @@ public:
 	count numberOfElements() const;
 
 	/**
+	 * Add an additional element (node).
+	 */
+	index extend();
+
+	/**
 	 * Get the ids of nonempty subsets.
 	 *
 	 * @return A set of ids of nonempty subsets.
@@ -259,7 +264,7 @@ inline void Cover::forEntries(Callback handle) const {
 template<typename Callback>
 inline void Cover::parallelForEntries(Callback handle) const {
 	#pragma omp parallel for
-	for (index e = 0; e <= this->z; e += 1) {
+	for (omp_index e = 0; e <= static_cast<omp_index>(this->z); e += 1) {
 		handle(e, data[e]);
 	}
 }

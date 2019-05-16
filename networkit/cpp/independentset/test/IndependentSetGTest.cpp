@@ -5,17 +5,18 @@
  *      Author: Christian Staudt (christian.staudt@kit.edu)
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
-#include "IndependentSetGTest.h"
 #include "../../auxiliary/Log.h"
 #include "../../generators/ErdosRenyiGenerator.h"
+#include "../../graph/Graph.h"
+#include "../../independentset/Luby.h"
 
 namespace NetworKit {
 
+class IndependentSetGTest: public testing::Test {};
 
-
-TEST_F(IndependentSetGTest, tryLuby) {
+TEST_F(IndependentSetGTest, debugLuby) {
 	count n = 500;
 	ErdosRenyiGenerator generator(n, 0.001);
 	Graph G = generator.generate();
@@ -36,7 +37,7 @@ TEST_F(IndependentSetGTest, tryLuby) {
 	INFO("independent set size: " , size , "/" , n);
 }
 
-TEST_F(IndependentSetGTest, tryLubyWithSelfLoops) {
+TEST_F(IndependentSetGTest, debugLubyWithSelfLoops) {
 	count n = 500;
 	ErdosRenyiGenerator generator(n, 0.001);
 	Graph G = generator.generate();
@@ -62,5 +63,3 @@ TEST_F(IndependentSetGTest, tryLubyWithSelfLoops) {
 }
 
 } /* namespace NetworKit */
-
-#endif /*NOGTEST */

@@ -5,9 +5,8 @@
  *      Author: Henning
  */
 
-#ifndef NOGTEST
+#include <gtest/gtest.h>
 
-#include "MatcherGTest.h"
 #include "../Matcher.h"
 #include "../Matching.h"
 #include "../PathGrowingMatcher.h"
@@ -17,9 +16,9 @@
 #include "../../io/METISGraphReader.h"
 #include "../../auxiliary/Random.h"
 
-
 namespace NetworKit {
 
+class MatcherGTest: public testing::Test {};
 
 TEST_F(MatcherGTest, testLocalMaxMatching) {
 	count n = 50;
@@ -58,7 +57,6 @@ TEST_F(MatcherGTest, testLocalMaxMatchingDirectedWarning) {
 	EXPECT_THROW(LocalMaxMatcher localMaxMatcher(G), std::runtime_error);
 }
 
-
 TEST_F(MatcherGTest, testPgaMatchingOnWeightedGraph) {
 	count n = 50;
 	Graph G(n);
@@ -66,7 +64,7 @@ TEST_F(MatcherGTest, testPgaMatchingOnWeightedGraph) {
 		G.addEdge(u,v, Aux::Random::real());
 	});
 	PathGrowingMatcher pgaMatcher(G);
-	pgaMatcher.run();
+	EXPECT_NO_THROW(pgaMatcher.run());
 }
 
 TEST_F(MatcherGTest, testPgaMatchingWithSelfLoops) {
@@ -79,7 +77,6 @@ TEST_F(MatcherGTest, testPgaMatchingWithSelfLoops) {
 		G.addEdge(u,u);
 	});
 	EXPECT_THROW(PathGrowingMatcher pgaMatcher(G),std::invalid_argument);
-	//pgaMatcher.run();
 }
 
 
@@ -115,7 +112,7 @@ TEST_F(MatcherGTest, testPgaMatching) {
 #endif
 }
 
-TEST_F(MatcherGTest, tryValidMatching) {
+TEST_F(MatcherGTest, debugValidMatching) {
 	METISGraphReader reader;
 	Graph G = reader.read("coAuthorsDBLP.graph");
 
@@ -127,7 +124,4 @@ TEST_F(MatcherGTest, tryValidMatching) {
 	EXPECT_TRUE(isProper);
 }
 
-
-} // namespace EnsembleClustering
-
-#endif
+} // namespace NetworKit

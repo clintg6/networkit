@@ -37,10 +37,10 @@ public:
 		// normalize At by out-degree
 		Vector invOutDeg = GraphBLAS::rowReduce(A);
 #pragma omp parallel for
-		for (index i = 0; i < invOutDeg.getDimension(); ++i) {
+		for (omp_index i = 0; i < static_cast<omp_index>(invOutDeg.getDimension()); ++i) {
 			invOutDeg[i] = 1.0/invOutDeg[i];
 		}
-		
+
 		std::vector<Triplet> mTriplets(A.nnz());
 		index idx = 0;
 		A.forNonZeroElementsInRowOrder([&](index i, index j, double value) {
@@ -108,13 +108,13 @@ void AlgebraicPageRank<Matrix>::run() {
 
 	double sum = 0.0;
 #pragma omp parallel for reduction(+:sum)
-	for (index i = 0; i < rank.getDimension(); ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(rank.getDimension()); ++i) {
 		sum += rank[i];
 	}
 
 	scoreData.resize(n, 0);
 #pragma omp parallel for
-	for (index i = 0; i < rank.getDimension(); ++i) {
+	for (omp_index i = 0; i < static_cast<omp_index>(rank.getDimension()); ++i) {
 		scoreData[i] = rank[i] / sum;
 	}
 
@@ -123,14 +123,14 @@ void AlgebraicPageRank<Matrix>::run() {
 
 template<class Matrix>
 std::vector<double> AlgebraicPageRank<Matrix>::scores(bool moveOut) {
-	if (!hasRun) throw std::runtime_error("Call run method first");
+	assureFinished();
 	hasRun = !moveOut;
 	return moveOut ? std::move(scoreData) : scoreData;
 }
 
 template<class Matrix>
 std::vector<std::pair<node, double>> AlgebraicPageRank<Matrix>::ranking() {
-	if (!hasRun) throw std::runtime_error("Call run method first");
+	assureFinished();
 	std::vector<std::pair<node, double> > ranking;
 	for (index i = 0; i < scoreData.size(); ++i) {
 		ranking.push_back({i, scoreData[i]});
@@ -141,7 +141,7 @@ std::vector<std::pair<node, double>> AlgebraicPageRank<Matrix>::ranking() {
 
 template<class Matrix>
 double AlgebraicPageRank<Matrix>::score(node v) {
-	if (!hasRun) throw std::runtime_error("Call run method first");
+	assureFinished();
 	return scoreData.at(v);
 }
 

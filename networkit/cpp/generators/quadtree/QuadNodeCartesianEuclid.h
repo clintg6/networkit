@@ -520,12 +520,12 @@ public:
 	}
 
 	index getCellID(Point<double> pos) const {
-		if (!responsible(pos)) return NetworKit::none;
+		if (!responsible(pos)) return none;
 		if (isLeaf) return getID();
 		else {
 			for (int i = 0; i < children.size(); i++) {
 				index childresult = children[i].getCellID(pos);
-				if (childresult != NetworKit::none) return childresult;
+				if (childresult != none) return childresult;
 			}
 			throw std::runtime_error("No responsible child node found even though this node is responsible.");
 		}
@@ -545,7 +545,9 @@ public:
 	count reindex(count offset) {
 		if (isLeaf)
 		{
+#ifndef NETWORKIT_OMP2
 			#pragma omp task
+#endif
 			{
 				index p = offset;
 				std::generate(content.begin(), content.end(), [&p](){return p++;});

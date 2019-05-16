@@ -8,8 +8,8 @@
 #ifndef SPANNING_H_
 #define SPANNING_H_
 
-#include "Centrality.h"
 #include "../numerics/LAMG/Lamg.h"
+#include "Centrality.h"
 #include "../algebraic/CSRMatrix.h"
 
 
@@ -21,7 +21,7 @@ namespace NetworKit {
  * SpanningEdgeCentrality edge centrality.
  *
  */
-class SpanningEdgeCentrality: public NetworKit::Centrality {
+class SpanningEdgeCentrality: public Centrality {
 protected:
 	double tol;
 	Lamg<CSRMatrix> lamg;
